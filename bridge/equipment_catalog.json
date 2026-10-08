@@ -1,0 +1,155 @@
+[
+  {
+    "name": "Abdominal Crunch Sel",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [],
+    "muscles_used": [
+      "Rectus abdominis",
+      "Obliques",
+      "Core stabilisers"
+    ],
+    "details": "Selectorized crunch machine. Pad across the shoulders, spinal flexion against the weight stack. Primary mover is the rectus abdominis with oblique involvement for trunk control."
+  },
+  {
+    "name": "Activities",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [],
+    "muscles_used": [],
+    "details": null
+  },
+  {
+    "name": "Bike Excite Live",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines",
+      "Sessions",
+      "Outdoor"
+    ],
+    "muscles_used": [
+      "Quadriceps",
+      "Glutes",
+      "Hamstrings",
+      "Calves"
+    ],
+    "details": "Upright exercise bike with walk-through design on the Technogym Live console."
+  },
+  {
+    "name": "Climb Excite Live",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines (incl. HIIT)",
+      "Sessions",
+      "Outdoor"
+    ],
+    "muscles_used": [
+      "Quadriceps",
+      "Glutes",
+      "Calves"
+    ],
+    "details": "Stair climber on the Technogym Live console. Climb's Routines include HIIT formats with automatic step-rate adjustment."
+  },
+  {
+    "name": "Low Row Sel",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [],
+    "muscles_used": [
+      "Latissimus dorsi",
+      "Rhomboids",
+      "Biceps brachii",
+      "Posterior deltoids"
+    ],
+    "details": "Selectorized seated row. Pull handles to the torso squeezing the shoulder blades, shoulders kept low. Targets the upper-back muscles with biceps assistance."
+  },
+  {
+    "name": "Run Excite Live",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines",
+      "Sessions",
+      "Outdoor"
+    ],
+    "muscles_used": [
+      "Quadriceps",
+      "Hamstrings",
+      "Glutes",
+      "Calves"
+    ],
+    "details": "Treadmill on the Technogym Live console. Speed and incline routines auto-adjust; Sessions are trainer-led video workouts."
+  },
+  {
+    "name": "Shoulder Press Sel",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [],
+    "muscles_used": [
+      "Anterior deltoids",
+      "Lateral deltoids",
+      "Triceps brachii",
+      "Upper pectorals"
+    ],
+    "details": "Selectorized overhead press. Press the handles overhead from shoulder height. Prime movers are the front and side deltoids with triceps assistance."
+  },
+  {
+    "name": "Synchro Excite Live",
+    "manufacturer": "Technogym",
+    "category": "machine",
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines",
+      "Sessions",
+      "Outdoor"
+    ],
+    "muscles_used": [
+      "Quadriceps",
+      "Glutes",
+      "Hamstrings",
+      "Upper back",
+      "Arms"
+    ],
+    "details": "Elliptical cross trainer with moving arms. Low-impact full-body cardio on the Technogym Live console."
+  },
+  {
+    "name": "Treadmill",
+    "manufacturer": "Technogym",
+    "category": "cardio",
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test"
+    ],
+    "muscles_used": [
+      "Quadriceps",
+      "Hamstrings",
+      "Glutes",
+      "Calves"
+    ],
+    "details": "Generic Technogym treadmill entry. Link this profile to a specific Excite Live Run machine when known."
+  }
+]

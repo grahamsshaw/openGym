@@ -1,0 +1,107 @@
+[
+  {
+    "machine": "Abdominal Crunch Sel",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Activities",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Bike Excite Live",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines",
+      "Sessions",
+      "Outdoor"
+    ],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Climb Excite Live",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines (incl. HIIT)",
+      "Sessions",
+      "Outdoor"
+    ],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Low Row Sel",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Run Excite Live",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines",
+      "Sessions",
+      "Outdoor"
+    ],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Shoulder Press Sel",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Synchro Excite Live",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test",
+      "Routines",
+      "Sessions",
+      "Outdoor"
+    ],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  },
+  {
+    "machine": "Treadmill",
+    "qr_payload": null,
+    "opengym_exercises": [],
+    "program_modes": [
+      "Quick Start",
+      "Goals (Time, Distance, Calories)",
+      "Profiles",
+      "Constant Heart Rate",
+      "Fitness Test"
+    ],
+    "notes": "scan with a generic reader; paste raw text into qr_payload"
+  }
+]
