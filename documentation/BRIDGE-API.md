@@ -20,16 +20,24 @@ device; no server can fetch it). So the button does two jobs:
    `mergeImport` path. A local file copy stays on the phone too, so the
    transfer is inspectable, not magic.
 
-## New server surface (personal additions, marked as such)
+## New server surface (personal additions, marked as such) — BUILT
 
-- `api/bridge.js` (new file): the two endpoints above, auth-gated like
-  every other `/api/*` route, rate-limited, audit-logged.
-- One entry each in the `routes` table in `api/server.js` (marked
-  `// PERSONAL`), nothing else upstream touched.
-- A `bridge` compose service (Python) that owns credentials/paths and
-  does the actual pulling — the API container holds no secrets and
-  spawns nothing; it writes a trigger the bridge service consumes.
-  Keeps upstream's "API spawns nothing" posture intact.
+- `api/bridge.js` (new file): filesystem job queue under `DATA_DIR/bridge/`.
+  `requestPull` coalesces impatient repeats onto the pending job and refuses
+  unknown sources; `pullStatus` reports runner freshness (heartbeat
+  `runner.json` < 10 min), pending jobs and the last result.
+- `api/server.js`: one import line, two `routes` entries and two
+  `THROTTLED` entries, every line marked `PERSONAL-BRIDGE`. Upstream's
+  "API spawns nothing" posture is unchanged — the endpoints only queue.
+- `api/Dockerfile`: `bridge.js` added to the explicit `COPY` list (the
+  file's own comment demands it; without this the built image fails at
+  boot — verified by reading the Dockerfile, not by breaking it).
+- `api/test/bridge.test.js`: boots the real server in a child with a temp
+  data dir — 401s without a session, queue + coalesce + status with one,
+  400 on unknown sources.
+- Verified: new test passes; boot/routing/auth/password/data-rev suites
+  pass 36/37 with the single failure (a Coach debrief test) proven
+  pre-existing on the clean tree (Windows-environment, unrelated).
 
 ## Phone UI (new code,Capacitor app + PWA alike)
 

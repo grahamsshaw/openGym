@@ -35,6 +35,8 @@ import { effectiveRoutineId } from './queue.js';
 import { stampPut } from './sync-stamps.js';
 import { atomicWrite as durableWrite } from './durable.js';
 import { nudgeFor, nudgeWindowOpen, toneOf } from './nudge.js';
+// PERSONAL-BRIDGE: phone-button pull triggers (see api/bridge.js).
+import * as personalBridge from './bridge.js';
 
 const PORT = +(process.env.PORT || 3000);
 const DATA = process.env.DATA_DIR || '/data';
@@ -919,7 +921,9 @@ const THROTTLED = {
   // budget: the password that may prove them counts its own failures (passwordAttempt).
   'POST /api/device-link/options': 'link', 'POST /api/device-link/verify': 'link',
   'POST /api/account/passkeys/options': null, 'POST /api/account/device-link': null,
-  'DELETE /api/account/passkeys': null
+  'DELETE /api/account/passkeys': null,
+  // PERSONAL-BRIDGE: pull triggers spend the burst budget only.
+  'POST /api/bridge/pull': null, 'GET /api/bridge/status': null
 };
 
 // Which address the throttle counts against. Unlike clientIp() above, which only labels a log
@@ -2212,6 +2216,24 @@ const routes = {
       try { MEDIA.noteState(user.id, body.state); } catch (e) { console.error('media noteState', e); }
     }
     json(res, 200, { ok: true, ts: body.state._ts || null, rev: curRev + 1, wid: body.state._wid });
+  },
+
+  // PERSONAL-BRIDGE: let a signed-in phone ask the server to pull gym data.
+  // The credentials and paths live with the bridge runner, never on the
+  // phone — this only queues the request (see api/bridge.js).
+  'POST /api/bridge/pull': async (req, res) => {
+    const user = readSession(req);
+    if (!user) return json(res, 401, { error: 'not signed in' });
+    const body = await readBody(req);
+    const out = personalBridge.requestPull({ userId: user.id, sources: body.sources });
+    if (out.error) return json(res, 400, { error: out.error });
+    audit(req, 'bridge.pull.request', { ok: true, user, msg: out.job.id });
+    json(res, 200, { ok: true, job: out.job, coalesced: out.coalesced });
+  },
+  'GET /api/bridge/status': async (req, res) => {
+    const user = readSession(req);
+    if (!user) return json(res, 401, { error: 'not signed in' });
+    json(res, 200, { ok: true, ...personalBridge.pullStatus() });
   },
 
   'GET /api/push/public-key': async (req, res) => json(res, 200, { key: vapid.publicKey }),
