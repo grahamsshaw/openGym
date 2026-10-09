@@ -23,7 +23,10 @@
   result as the export app's CSVs, and uploads them to the server inbox —
   the pull chain consumes them byte-identically to a manual export.
   Needs the personal APK: the official build has no native `read`, and
-  the row says so instead of failing quietly.
+  the row says so instead of failing quietly. The row is compiled into
+  mobile builds only (`MOBILE` flag — the web bundle tree-shakes it out,
+  correctly, since browsers cannot reach Health Connect; verified
+  `VITE_MOBILE=1` build contains it).
 - **Enrichment direction**: phone sessions matched by timestamp against gym
   sessions enrich them (travel/errand steps around a workout stay separate
   daily aggregates; HR from the watch attaches to the session) — the same
