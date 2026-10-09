@@ -17,6 +17,7 @@ For one person's use only; the server is never exposed to others.
 |---|---|
 | Run it | Upstream `README.md` + `docs/SELF_HOSTING.md` |
 | Import Technogym / Wii Fit / phone data | `bridge/README.md` |
+| Automatic nightly pull + push | `documentation/AUTO-PULL.md` |
 | How data flows between app and database | `documentation/ARCHITECTURE.md` |
 | What's allowed (licences, images) | `documentation/LICENSING.md` |
 | Gym QR → exercise plan | `documentation/QR-PLAN.md` |

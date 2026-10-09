@@ -13,6 +13,9 @@ page.
 | `build_qr_mapping.py` | `equipment_catalog.json` | `qr_mapping.json` |
 | `merge_workout_csvs.py` | bridge workout CSVs | one combined import file |
 | `dryrun.mjs` / `showday.mjs` | a combined CSV | real-parser verification |
+| `mergetest.mjs` | samples + live state copy | idempotency proof (offline) |
+| `autopush.mjs` | bridge CSVs + login | merge + push into openGym (dry-run default) |
+| `pull_all.bat` | everything above | scheduled nightly chain (see AUTO-PULL.md) |
 
 `samples/` holds verified outputs from the real data (see
 `documentation/BRIDGE-GUIDE.md` for counts). `out/` is the git-ignored

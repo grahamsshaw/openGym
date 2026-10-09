@@ -193,6 +193,22 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(weighins)
 
+    # Same-day disagreements are reported, never silently resolved:
+    # openGym keeps the LAST row per day, so a stray bad reading (another
+    # person on the gym scale, a partial measurement) would win by position
+    # alone. Check any listed day and delete the bad row from your working
+    # copy before importing.
+    by_day: dict[str, list[float]] = {}
+    for row in weighins:
+        try:
+            by_day.setdefault(row["date"], []).append(float(row["weight"]))
+        except (TypeError, ValueError):
+            continue
+    for day in sorted(by_day):
+        values = by_day[day]
+        if len(values) > 1 and max(values) - min(values) > 2.0:
+            print(f"CONFLICT {day}: {sorted(values)} kg — resolve before importing")
+
     print(f"sessions: {len(indoor)}, workout rows: {len(workouts)}, "
           f"weigh-ins: {len(weighins)}")
 
