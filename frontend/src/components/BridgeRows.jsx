@@ -7,10 +7,12 @@
 //   .csv/.json/.xml) and POSTs each to /api/bridge/inbox, where the pull
 //   chain consumes them. Works wherever the app runs — browser, PWA, or
 //   the paired phone app — because lib/api.js carries the session both ways.
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api.js'
 import { t } from '../lib/i18n.js'
 import { useUI } from '../store/useUI.js'
+import { MOBILE, isAndroid } from '../lib/mobile.js'
+import { readPlugin, readPhoneHealth, toHealthExportCsv, READ_DAYS_DEFAULT } from '../lib/health-read.js'
 import { Row, Section } from './ui.jsx'
 
 function statusLine(s) {
@@ -26,7 +28,9 @@ export function BridgeDataSection() {
   const toast = useUI(s => s.toast)
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [droid, setDroid] = useState(false)
   const upRef = useRef(null)
+  useEffect(() => { if (MOBILE) isAndroid().then(setDroid).catch(() => {}) }, [])
 
   const refresh = async () => {
     try { setStatus(await api('/api/bridge/status')) }
@@ -65,11 +69,50 @@ export function BridgeDataSection() {
     if (ok) toast(t('{0} file(s) on the server.', ok))
   }
 
+  // PERSONAL-READ: read this phone's Health Connect data and upload it as
+  // the export app's CSVs, straight into the server inbox. Needs the
+  // personal APK (the official build has no native `read`); anything else
+  // says so plainly instead of failing quietly.
+  const readPhone = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      const hc = await readPlugin()
+      if (!hc) {
+        toast(t('Needs the personal app build with Health Connect read.'))
+        return
+      }
+      const read = await readPhoneHealth({ days: READ_DAYS_DEFAULT, hc })
+      const csv = toHealthExportCsv(read)
+      const files = [
+        ['Activity.csv', csv.activity],
+        ['Sleep.csv', csv.sleep],
+        ['Vitals.csv', csv.vitals],
+      ].filter(([, text]) => text.trim().split('\n').length > 2)
+      for (const [filename, content] of files) {
+        await api('/api/bridge/inbox', { method: 'POST', body: JSON.stringify({ filename, content }) })
+      }
+      toast(files.length
+        ? t('{0} sessions from the last {1} days, on the server.', read.sessions.length, READ_DAYS_DEFAULT)
+        : t('Nothing new on this phone.'))
+      await refresh()
+    } catch (e) {
+      toast(e?.code === 'permission' || /permission/i.test(e?.message || '')
+        ? t('Allow reading in Health Connect, then try again.')
+        : t('Could not read phone health data.'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <Section title={t('From your other data')}>
       <Row icon="download" iconTint="var(--teal)" title={t('Pull gym + Wii data')}
         subtitle={status ? statusLine(status) : t('Ask the server to fetch Technogym, Wii and waiting phone files.')}
         accessory="chevron" onClick={pull} />
+      {MOBILE && droid && <Row icon="heart" iconTint="var(--red)" title={t('Read phone health data')}
+        subtitle={t('Last {0} days from Health Connect, straight to the server.', READ_DAYS_DEFAULT)}
+        accessory="chevron" onClick={readPhone} />}
       <Row icon="share" iconTint="var(--teal)" title={t('Send phone files to server')}
         subtitle={t('Health Data Export CSVs from this device. The next pull imports them.')}
         accessory="chevron" onClick={() => upRef.current.click()} />

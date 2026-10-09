@@ -9,6 +9,19 @@ import androidx.health.connect.client.HealthConnectClient;
 import androidx.health.connect.client.PermissionController;
 import androidx.health.connect.client.records.ExerciseSessionRecord;
 import androidx.health.connect.client.records.Record;
+import androidx.health.connect.client.records.SleepSessionRecord;
+import androidx.health.connect.client.records.StepsRecord;
+import androidx.health.connect.client.records.DistanceRecord;
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord;
+import androidx.health.connect.client.records.HeartRateRecord;
+import androidx.health.connect.client.request.ReadRecordsRequest;
+import androidx.health.connect.client.response.ReadRecordsResponse;
+import androidx.health.connect.client.aggregate.AggregateRequest;
+import androidx.health.connect.client.aggregate.AggregateMetric;
+import androidx.health.connect.client.aggregate.AggregationResult;
+import androidx.health.connect.client.time.TimeRangeFilter;
+import java.time.Duration;
+import java.time.Instant;
 import androidx.health.connect.client.records.WeightRecord;
 import androidx.health.connect.client.records.metadata.Metadata;
 import androidx.health.connect.client.units.Mass;
@@ -67,6 +80,15 @@ public class HealthConnectPlugin extends Plugin {
     // The literal permission names, as declared in AndroidManifest.xml.
     private static final String WRITE_EXERCISE = "android.permission.health.WRITE_EXERCISE";
     private static final String WRITE_WEIGHT = "android.permission.health.WRITE_WEIGHT";
+    // PERSONAL-READ: read path (HealthConnectPlugin.read + lib/health-read.js).
+    // Separate set from permissions(): the write toggle's granted-check must
+    // not start demanding read grants, and vice versa.
+    private static final String READ_EXERCISE = "android.permission.health.READ_EXERCISE";
+    private static final String READ_STEPS = "android.permission.health.READ_STEPS";
+    private static final String READ_DISTANCE = "android.permission.health.READ_DISTANCE";
+    private static final String READ_CALORIES = "android.permission.health.READ_TOTAL_CALORIES_BURNED";
+    private static final String READ_SLEEP = "android.permission.health.READ_SLEEP";
+    private static final String READ_HEART_RATE = "android.permission.health.READ_HEART_RATE";
     // Health Connect takes at most this many records in one insert.
     private static final int CHUNK = 500;
 
@@ -81,6 +103,19 @@ public class HealthConnectPlugin extends Plugin {
         Set<String> p = new HashSet<>();
         p.add(WRITE_EXERCISE);
         p.add(WRITE_WEIGHT);
+        return p;
+    }
+
+    // PERSONAL-READ: the read set, kept apart from permissions() so the two
+    // toggles (write workouts out / read phone data in) never gate each other.
+    private static Set<String> readPermissions() {
+        Set<String> p = new HashSet<>();
+        p.add(READ_EXERCISE);
+        p.add(READ_STEPS);
+        p.add(READ_DISTANCE);
+        p.add(READ_CALORIES);
+        p.add(READ_SLEEP);
+        p.add(READ_HEART_RATE);
         return p;
     }
 
@@ -201,6 +236,148 @@ public class HealthConnectPlugin extends Plugin {
                 call.reject(e.getMessage(), "failed");
             }
         });
+    }
+
+    // PERSONAL-READ: pull phone health data in (lib/health-read.js drives it).
+    // Params startMs/endMs (epoch millis; end defaults to now). Resolves
+    // sessions (with originating app package, so JS skips records this app
+    // wrote itself), window totals (steps, distance, calories, HR min/avg/max)
+    // and sleep sessions with summed light/deep/rem/awake minutes. Per-session
+    // distance/calories come from windowed aggregates over each session.
+    // UNTESTED without an Android SDK build (see HEALTH-CONNECT-PLAN.md):
+    // written against connect-client 1.1.0-alpha12 in this file's own
+    // runBlocking/worker idiom. Compile with Android Studio before trusting.
+    @PluginMethod
+    public void read(PluginCall call) {
+        if (!"available".equals(sdkStatus())) {
+            call.reject("Health Connect is not available", "unavailable");
+            return;
+        }
+        long endMs = call.getLong("endMs", System.currentTimeMillis());
+        long startMs = call.getLong("startMs", endMs - 30L * 86400000L);
+        worker.execute(() -> {
+            try {
+                if (!granted().containsAll(readPermissions())) {
+                    call.reject("Health Connect read permission not granted", "permission");
+                    return;
+                }
+                TimeRangeFilter range = TimeRangeFilter.Companion.between(
+                        Instant.ofEpochMilli(startMs), Instant.ofEpochMilli(endMs));
+                JSObject out = new JSObject();
+                out.put("sessions", readSessions(range));
+                JSObject totals = readTotals(range);
+                out.put("steps", totals.optLong("steps", 0));
+                out.put("distanceM", totals.optDouble("distanceM", 0));
+                out.put("caloriesKcal", totals.optDouble("caloriesKcal", 0));
+                out.put("hrMin", totals.optLong("hrMin", 0));
+                out.put("hrAvg", totals.optLong("hrAvg", 0));
+                out.put("hrMax", totals.optLong("hrMax", 0));
+                out.put("sleep", readSleep(range));
+                call.resolve(out);
+            } catch (SecurityException e) {
+                call.reject(e.getMessage(), "permission");
+            } catch (Exception e) {
+                call.reject(e.getMessage(), "failed");
+            }
+        });
+    }
+
+    private JSArray readSessions(TimeRangeFilter range) throws Exception {
+        JSArray out = new JSArray();
+        String token = null;
+        do {
+            ReadRecordsRequest<ExerciseSessionRecord> req = new ReadRecordsRequest<>(
+                    JvmClassMappingKt.getKotlinClass(ExerciseSessionRecord.class),
+                    range, Collections.emptySet(), true, 1000, token);
+            ReadRecordsResponse<ExerciseSessionRecord> res =
+                    (ReadRecordsResponse<ExerciseSessionRecord>) BuildersKt.runBlocking(
+                            EmptyCoroutineContext.INSTANCE, (scope, cont) -> client().readRecords(req, cont));
+            for (ExerciseSessionRecord r : res.getRecords()) {
+                JSONObject o = new JSONObject();
+                o.put("start", r.getStartTime().toEpochMilli());
+                o.put("end", r.getEndTime().toEpochMilli());
+                o.put("type", r.getExerciseType());
+                o.put("typeName", readTypeName(r.getExerciseType()));
+                o.put("title", r.getTitle() != null ? r.getTitle() : "");
+                o.put("app", r.getMetadata().getDataOrigin().getPackageName());
+                JSObject window = readTotals(TimeRangeFilter.Companion.between(
+                        r.getStartTime(), r.getEndTime()));
+                o.put("distanceM", window.optDouble("distanceM", 0));
+                o.put("caloriesKcal", window.optDouble("caloriesKcal", 0));
+                out.put(o);
+            }
+            token = res.getPageToken();
+        } while (token != null);
+        return out;
+    }
+
+    private JSObject readTotals(TimeRangeFilter range) throws Exception {
+        Set<AggregateMetric<?>> metrics = new HashSet<>();
+        metrics.add(StepsRecord.COUNT_TOTAL);
+        metrics.add(DistanceRecord.DISTANCE_TOTAL);
+        metrics.add(TotalCaloriesBurnedRecord.ENERGY_TOTAL);
+        metrics.add(HeartRateRecord.BPM_MIN);
+        metrics.add(HeartRateRecord.BPM_AVG);
+        metrics.add(HeartRateRecord.BPM_MAX);
+        AggregateRequest<?> req = new AggregateRequest<>(metrics, range, Collections.emptySet());
+        AggregationResult res = (AggregationResult) BuildersKt.runBlocking(
+                EmptyCoroutineContext.INSTANCE, (scope, cont) -> client().aggregate(req, cont));
+        JSObject out = new JSObject();
+        try { out.put("steps", res.getLong(StepsRecord.COUNT_TOTAL)); } catch (Exception ignored) {}
+        try { out.put("distanceM", res.getDouble(DistanceRecord.DISTANCE_TOTAL)); } catch (Exception ignored) {}
+        try { out.put("caloriesKcal", res.getDouble(TotalCaloriesBurnedRecord.ENERGY_TOTAL)); } catch (Exception ignored) {}
+        try { out.put("hrMin", res.getLong(HeartRateRecord.BPM_MIN)); } catch (Exception ignored) {}
+        try { out.put("hrAvg", res.getLong(HeartRateRecord.BPM_AVG)); } catch (Exception ignored) {}
+        try { out.put("hrMax", res.getLong(HeartRateRecord.BPM_MAX)); } catch (Exception ignored) {}
+        return out;
+    }
+
+    private JSArray readSleep(TimeRangeFilter range) throws Exception {
+        JSArray out = new JSArray();
+        String token = null;
+        do {
+            ReadRecordsRequest<SleepSessionRecord> req = new ReadRecordsRequest<>(
+                    JvmClassMappingKt.getKotlinClass(SleepSessionRecord.class),
+                    range, Collections.emptySet(), true, 200, token);
+            ReadRecordsResponse<SleepSessionRecord> res =
+                    (ReadRecordsResponse<SleepSessionRecord>) BuildersKt.runBlocking(
+                            EmptyCoroutineContext.INSTANCE, (scope, cont) -> client().readRecords(req, cont));
+            for (SleepSessionRecord r : res.getRecords()) {
+                long light = 0, deep = 0, rem = 0, awake = 0;
+                for (SleepSessionRecord.Stage s : r.getStages()) {
+                    long mins = Duration.between(s.getStartTime(), s.getEndTime()).toMinutes();
+                    switch (s.getStage()) {
+                        case SleepSessionRecord.STAGE_TYPE_LIGHT_SLEEP: light += mins; break;
+                        case SleepSessionRecord.STAGE_TYPE_DEEP_SLEEP: deep += mins; break;
+                        case SleepSessionRecord.STAGE_TYPE_REM_SLEEP: rem += mins; break;
+                        case SleepSessionRecord.STAGE_TYPE_AWAKE:
+                        case SleepSessionRecord.STAGE_TYPE_OUT_OF_BED: awake += mins; break;
+                        default: break;
+                    }
+                }
+                JSONObject o = new JSONObject();
+                o.put("start", r.getStartTime().toEpochMilli());
+                o.put("end", r.getEndTime().toEpochMilli());
+                o.put("lightMin", light);
+                o.put("deepMin", deep);
+                o.put("remMin", rem);
+                o.put("awakeMin", awake);
+                out.put(o);
+            }
+            token = res.getPageToken();
+        } while (token != null);
+        return out;
+    }
+
+    // Inverse of exerciseType(): names cross the bridge, ints stay in Java.
+    private static String readTypeName(int type) {
+        if (type == ExerciseSessionRecord.EXERCISE_TYPE_STRENGTH_TRAINING) return "strength_training";
+        if (type == ExerciseSessionRecord.EXERCISE_TYPE_WALKING) return "walking";
+        if (type == ExerciseSessionRecord.EXERCISE_TYPE_RUNNING) return "running";
+        if (type == ExerciseSessionRecord.EXERCISE_TYPE_BIKING_STATIONARY) return "biking_stationary";
+        if (type == ExerciseSessionRecord.EXERCISE_TYPE_ELLIPTICAL) return "elliptical";
+        if (type == ExerciseSessionRecord.EXERCISE_TYPE_STAIR_CLIMBING_MACHINE) return "stair_climbing_machine";
+        return "other";
     }
 
     // Health Connect's own screen for the data apps wrote, where the user can look at and delete

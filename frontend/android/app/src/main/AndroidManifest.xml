@@ -111,6 +111,15 @@
          openGym writes finished workouts and weigh-ins and reads nothing back. -->
     <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
     <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
+    <!-- PERSONAL-READ: read path for pulling phone health data in (see
+         HealthConnectPlugin.read + lib/health-read.js). Asked for only when
+         the user taps "Read phone health data". -->
+    <uses-permission android:name="android.permission.health.READ_EXERCISE" />
+    <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <uses-permission android:name="android.permission.health.READ_DISTANCE" />
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED" />
+    <uses-permission android:name="android.permission.health.READ_SLEEP" />
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE" />
 
     <!-- Whether the Health Connect app is there, on Android 13 and lower. -->
     <queries>
