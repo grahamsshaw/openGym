@@ -132,6 +132,7 @@ def convert_export(indoor: list, biometrics: list) -> tuple[list[dict], list[dic
             "workout name": "Technogym session",
             "exercise": infer_exercise(metrics),
             "date": on,
+            "start time": "",
             "duration seconds": int(duration_s),
             "distance km": round(dist_m / 1000, 3) if dist_m else "",
             "note": session_note(metrics, len(_segments(item))),
@@ -182,7 +183,7 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     with open(out / "opengym_workouts.csv", "w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=[
-            "workout name", "exercise", "date",
+            "workout name", "exercise", "date", "start time",
             "duration seconds", "distance km", "note",
         ])
         writer.writeheader()

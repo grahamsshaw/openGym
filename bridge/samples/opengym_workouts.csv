@@ -1,168 +1,168 @@
-workout name,exercise,date,duration seconds,distance km,note
-Technogym session,Treadmill (Technogym),2026-09-26,900,0.92,Move 152; MetsMin 4.67067; ExerciseCompliance 100; source technogym
-Technogym session,Climb (Technogym),2026-09-26,840,,AvgHr 140; MaxHr 167; Move 233; MetsMin 6.99143; ExerciseCompliance 93; source technogym
-Technogym session,Treadmill (Technogym),2026-09-26,902,1.193,level 5.92; AvgHr 149; MaxHr 178; Move 299; MetsMin 8.18514; source technogym
-Technogym session,Rower (Technogym),2026-09-26,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Treadmill (Technogym),2026-05-26,1080,2.211,level 12; Move 277; MetsMin 6.57111; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-05-26,28,0.03,level 0.95; Move 6; MetsMin 6.08571; source technogym
-Technogym session,Treadmill (Technogym),2026-05-26,1200,1.493,AvgHr 138; MaxHr 158; Move 281; MetsMin 6.0875; ExerciseCompliance 133; source technogym
-Technogym session,Rower (Technogym),2026-05-26,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Climb (Technogym),2026-05-26,229,,AvgHr 139; MaxHr 163; Move 66; MetsMin 7.23144; ExerciseCompliance 25; source technogym
-Technogym session,Treadmill (Technogym),2026-05-19,600,1.177,level 9; Move 142; MetsMin 6.159; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-05-19,629,0.398,Move 87; MetsMin 3.99777; source technogym
-Technogym session,Treadmill (Technogym),2026-05-19,793,1.003,level 8.81; AvgHr 134; MaxHr 148; Move 309; MetsMin 9.42825; source technogym
-Technogym session,Rower (Technogym),2026-05-19,600,,Move 264; MetsMin 9.5; source technogym
-Technogym session,Climb (Technogym),2026-05-19,600,,level 6; AvgHr 121; MaxHr 134; Move 144; MetsMin 6.236; 1 segments; source technogym
-Technogym session,Strength (Technogym),2026-05-19,510,,Move 47.1403; MetsMin 1.99653; 5 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-05-12,1200,2.411,Move 318; MetsMin 6.7405; ExerciseCompliance 133; source technogym
-Technogym session,Treadmill (Technogym),2026-05-12,21,0.021,level 0.95; Move 4; MetsMin 6.08571; source technogym
-Technogym session,Treadmill (Technogym),2026-05-12,20,0.023,level 0.95; Move 4; MetsMin 5.85; source technogym
-Technogym session,Treadmill (Technogym),2026-05-12,1200,1.488,AvgHr 128; MaxHr 160; Move 227; MetsMin 5.115; ExerciseCompliance 133; source technogym
-Technogym session,Climb (Technogym),2026-05-12,246,,AvgHr 138; MaxHr 159; Move 71; MetsMin 7.28293; ExerciseCompliance 27; source technogym
-Technogym session,Treadmill (Technogym),2026-05-07,1200,2.241,Move 302; MetsMin 6.458; ExerciseCompliance 133; source technogym
-Technogym session,Climb (Technogym),2026-05-07,302,,level 6; AvgHr 148; MaxHr 168; Move 99; MetsMin 8.10993; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-05-07,900,0.987,AvgHr 143; MaxHr 164; Move 182; MetsMin 5.396; ExerciseCompliance 100; source technogym
-Technogym session,Treadmill (Technogym),2026-04-24,1200,2.404,Move 317; MetsMin 6.7295; ExerciseCompliance 133; source technogym
-Technogym session,Treadmill (Technogym),2026-04-24,900,0.983,AvgHr 145; MaxHr 168; Move 195; MetsMin 5.692; ExerciseCompliance 100; source technogym
-Technogym session,Rower (Technogym),2026-04-24,600,,Move 264; MetsMin 9.5; source technogym
-Technogym session,Strength (Technogym),2026-04-24,450,,Move 61.6461; MetsMin 2.95901; 5 segments; source technogym
-Technogym session,Strength (Technogym),2026-04-24,240,,Move 36.1717; MetsMin 3.25545; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-04-17,1500,2.717,Move 366; MetsMin 6.2788; ExerciseCompliance 166; source technogym
-Technogym session,Treadmill (Technogym),2026-04-17,33,0.037,level 0.95; Move 6; MetsMin 6.10909; source technogym
-Technogym session,Treadmill (Technogym),2026-04-17,900,0.985,AvgHr 143; MaxHr 161; Move 173; MetsMin 5.18; ExerciseCompliance 100; source technogym
-Technogym session,Climb (Technogym),2026-04-17,603,,AvgHr 149; MaxHr 176; Move 175; MetsMin 7.33134; ExerciseCompliance 67; source technogym
-Technogym session,Treadmill (Technogym),2026-04-14,600,1.218,level 10; Move 148; MetsMin 6.36; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-04-14,900,0.991,AvgHr 129; MaxHr 154; Move 179; MetsMin 5.31933; ExerciseCompliance 100; source technogym
-Technogym session,Climb (Technogym),2026-04-14,840,,AvgHr 143; MaxHr 167; Move 234; MetsMin 7.05929; ExerciseCompliance 93; source technogym
-Technogym session,Treadmill (Technogym),2026-04-11,1200,1.579,AvgHr 176; MaxHr 181; Move 276; MetsMin 5.984; ExerciseCompliance 133; source technogym
-Technogym session,Treadmill (Technogym),2026-04-11,41,0.035,level 0.98; Move 8; MetsMin 5.75122; source technogym
-Technogym session,Treadmill (Technogym),2026-04-11,1200,1.47,AvgHr 162; MaxHr 180; Move 279; MetsMin 6.0335; ExerciseCompliance 133; source technogym
-Technogym session,Climb (Technogym),2026-04-11,600,,level 6; AvgHr 165; MaxHr 183; Move 164; MetsMin 6.961; 1 segments; source technogym
-Technogym session,Rower (Technogym),2026-04-11,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Bike (Technogym),2026-04-11,32,0.179,level 0.95; Move 4; MetsMin 4.93125; source technogym
-Technogym session,Bike (Technogym),2026-04-11,1080,7.835,level 6; AvgHr 175; MaxHr 183; Move 226; MetsMin 5.55889; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2026-04-09,960,1.745,level 10; Move 204; MetsMin 5.62625; source technogym
-Technogym session,Treadmill (Technogym),2026-04-09,26,0.03,level 0.95; Move 6; MetsMin 6.20769; source technogym
-Technogym session,Treadmill (Technogym),2026-04-09,1200,1.495,AvgHr 149; MaxHr 170; Move 284; MetsMin 6.126; ExerciseCompliance 133; source technogym
-Technogym session,Climb (Technogym),2026-04-09,600,,AvgHr 155; MaxHr 182; Move 158; MetsMin 6.727; ExerciseCompliance 66; source technogym
-Technogym session,Rower (Technogym),2026-04-09,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Treadmill (Technogym),2024-08-03,1800,3.5,MaxHr 0; Move 689; MetsMin 8.26667; 1 segments; source technogym
-Technogym session,Rower (Technogym),2024-08-03,430,,Move 189; MetsMin 9.5; source technogym
-Technogym session,Treadmill (Technogym),2024-08-03,1680,13.44,Move 320; MetsMin 4.11659; source technogym
-Technogym session,Cardio (Technogym),2024-08-03,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2024-08-03,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2024-08-03,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Treadmill (Technogym),2024-08-01,1905,3.6,MaxHr 0; Move 680; MetsMin 7.70738; 1 segments; source technogym
-Technogym session,Rower (Technogym),2024-08-01,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Treadmill (Technogym),2024-08-01,900,7.2,MaxHr 0; Move 163; MetsMin 3.90601; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2024-08-01,90,,Move 11.1111; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-10-01,1800,3.85,MaxHr 0; Move 749; MetsMin 8.99333; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-10-01,735,5.0,MaxHr 0; Move 172; MetsMin 5.0575; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-10-01,780,,Move 66.6324; MetsMin 1.8452; 5 segments; source technogym
-Technogym session,Strength (Technogym),2023-10-01,240,,Move 22.3012; MetsMin 2.00711; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2023-10-01,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2023-10-01,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2023-10-01,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-09-30,1800,3.8,MaxHr 0; Move 741; MetsMin 8.88952; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-30,480,,Move 45.5091; MetsMin 2.04791; 4 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-30,660,,Move 95.6438; MetsMin 3.13016; 5 segments; source technogym
-Technogym session,Cardio (Technogym),2023-09-30,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2023-09-30,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-09-23,1823,3.9,MaxHr 0; Move 759; MetsMin 8.99333; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-23,510,,Move 45.5091; MetsMin 1.92744; 4 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-23,510,,Move 58.6549; MetsMin 2.48421; 4 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-23,960,,Move 102.897; MetsMin 2.31518; 5 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-23,540,,Move 43.6959; MetsMin 1.74784; 4 segments; source technogym
-Technogym session,Cardio (Technogym),2023-09-23,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
-Technogym session,Cardio (Technogym),2023-09-23,90,,Move 11.1111; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2023-09-23,90,,Move 11.1111; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-09-15,1850,3.7,MaxHr 0; Move 713; MetsMin 8.32; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-09-15,900,7.2,Move 180; MetsMin 4.33008; source technogym
-Technogym session,Treadmill (Technogym),2023-09-01,1800,3.7,MaxHr 0; Move 710; MetsMin 8.52333; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-09-01,1200,9.6,MaxHr 0; Move 222; MetsMin 4.0003; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-01,360,,Move 33.4519; MetsMin 2.00711; 3 segments; source technogym
-Technogym session,Strength (Technogym),2023-09-01,420,,Move 35.2651; MetsMin 1.81363; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-08-25,1800,3.45,MaxHr 0; Move 659; MetsMin 7.91202; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-08-25,900,7.2,MaxHr 0; Move 167; MetsMin 4.0003; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-08-25,540,,Move 47.3223; MetsMin 1.89289; 4 segments; source technogym
-Technogym session,Strength (Technogym),2023-08-25,240,,Move 27.7409; MetsMin 2.49668; 2 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-08-18,1200,2.333,MaxHr 0; Move 459; MetsMin 8.26667; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-08-18,900,7.2,MaxHr 0; Move 210; MetsMin 5.03744; 1 segments; source technogym
-Technogym session,Rower (Technogym),2023-08-18,573,,Move 252; MetsMin 9.5; source technogym
-Technogym session,Treadmill (Technogym),2023-08-17,1920,3.573,MaxHr 0; Move 681; MetsMin 7.66238; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-08-17,900,7.2,MaxHr 0; Move 177; MetsMin 4.25173; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-08-17,480,,Move 42.336; MetsMin 1.90512; 4 segments; source technogym
-Technogym session,Strength (Technogym),2023-08-17,390,,Move 32.092; MetsMin 1.7774; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-02-13,1560,2.167,MaxHr 0; Move 244; MetsMin 3.38095; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-02-13,1560,1.3,MaxHr 0; Move 175; MetsMin 2.42857; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-02-13,600,4.8,level 1; profile 2; AvgHr 0; MaxHr 0; Move 98; MetsMin 3.5163; source technogym
-Technogym session,Strength (Technogym),2023-02-13,240,,Move 26.8343; MetsMin 2.41508; 2 segments; source technogym
-Technogym session,Strength (Technogym),2023-02-13,360,,Move 33.4519; MetsMin 2.00711; 3 segments; source technogym
-Technogym session,Strength (Technogym),2023-02-13,360,,Move 33.9052; MetsMin 2.03431; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-01-18,720,5.76,level 3; profile 2; AvgHr 0; MaxHr 0; Move 132; MetsMin 3.9563; source technogym
-Technogym session,Treadmill (Technogym),2023-01-18,1320,1.503,MaxHr 0; Move 223; MetsMin 3.65524; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-01-18,390,,Move 35.2651; MetsMin 1.95314; 3 segments; source technogym
-Technogym session,Strength (Technogym),2023-01-18,450,,Move 35.4917; MetsMin 1.7036; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-01-15,1500,1.958,MaxHr 0; Move 225; MetsMin 3.23809; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2023-01-15,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
-Technogym session,Strength (Technogym),2023-01-15,360,,Move 36.9731; MetsMin 2.21839; 3 segments; source technogym
-Technogym session,Strength (Technogym),2023-01-15,540,,Move 91.3832; MetsMin 3.65533; 4 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-08-01,1500,1.875,MaxHr 0; Move 218; MetsMin 3.14286; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-08-01,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-22,1800,2.5,MaxHr 0; Move 282; MetsMin 3.38095; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-22,450,,Move 73.0466; MetsMin 3.50623; 3 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-22,450,,Move 45.9915; MetsMin 2.20759; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-22,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-22,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-22,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-22,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-22,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-22,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-08,1800,2.5,MaxHr 0; Move 282; MetsMin 3.38095; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-08,300,,Move 33.9176; MetsMin 2.44207; 2 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-08,450,,Move 73.0466; MetsMin 3.50623; 3 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-08,450,,Move 45.9915; MetsMin 2.20759; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-08,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
-Technogym session,Rower (Technogym),2022-05-08,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Cardio (Technogym),2022-05-08,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-08,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-08,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-08,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-08,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-02,1830,2.44,MaxHr 0; Move 278; MetsMin 3.28571; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-02,300,,Move 33.9176; MetsMin 2.44207; 2 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-02,450,,Move 45.9915; MetsMin 2.20759; 3 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-02,450,,Move 73.0466; MetsMin 3.50623; 3 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-02,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-02,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-02,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-02,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-02,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-02,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-05-01,1800,2.3,MaxHr 0; Move 266; MetsMin 3.19048; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-01,450,,Move 70.0404; MetsMin 3.36194; 3 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-01,270,,Move 31.4125; MetsMin 2.513; 2 segments; source technogym
-Technogym session,Strength (Technogym),2022-05-01,450,,Move 44.4884; MetsMin 2.13544; 3 segments; source technogym
-Technogym session,Rower (Technogym),2022-05-01,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Cardio (Technogym),2022-05-01,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-01,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-01,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-05-01,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-04-24,1885,2.409,MaxHr 0; Move 278; MetsMin 3.19048; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-04-24,300,,Move 46.6936; MetsMin 3.36194; 2 segments; source technogym
-Technogym session,Strength (Technogym),2022-04-24,270,,Move 32.9156; MetsMin 2.63325; 2 segments; source technogym
-Technogym session,Strength (Technogym),2022-04-24,300,,Move 22.6447; MetsMin 1.63042; 2 segments; source technogym
-Technogym session,Rower (Technogym),2022-04-24,300,,Move 132; MetsMin 9.5; source technogym
-Technogym session,Cardio (Technogym),2022-04-24,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-04-24,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-04-24,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-04-24,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Cardio (Technogym),2022-04-24,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-04-24,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-03-06,1875,2.344,MaxHr 0; Move 273; MetsMin 3.14286; 1 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-03-06,780,0.78,MaxHr 0; Move 281; MetsMin 7.78962; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-03-06,480,,Move 45.2893; MetsMin 2.03802; 4 segments; source technogym
-Technogym session,Treadmill (Technogym),2022-03-03,1800,2.1,MaxHr 0; Move 250; MetsMin 3; 1 segments; source technogym
-Technogym session,Strength (Technogym),2022-03-03,360,,Move 43.9874; MetsMin 2.63924; 3 segments; source technogym
-Technogym session,Strength (Technogym),2022-03-03,540,,Move 44.7883; MetsMin 1.79153; 4 segments; source technogym
-Technogym session,Strength (Technogym),2022-03-03,420,,Move 84.7711; MetsMin 4.35966; 2 segments; source technogym
+workout name,exercise,date,start time,duration seconds,distance km,note
+Technogym session,Treadmill (Technogym),2026-09-26,,900,0.92,Move 152; MetsMin 4.67067; ExerciseCompliance 100; source technogym
+Technogym session,Climb (Technogym),2026-09-26,,840,,AvgHr 140; MaxHr 167; Move 233; MetsMin 6.99143; ExerciseCompliance 93; source technogym
+Technogym session,Treadmill (Technogym),2026-09-26,,902,1.193,level 5.92; AvgHr 149; MaxHr 178; Move 299; MetsMin 8.18514; source technogym
+Technogym session,Rower (Technogym),2026-09-26,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Treadmill (Technogym),2026-05-26,,1080,2.211,level 12; Move 277; MetsMin 6.57111; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-05-26,,28,0.03,level 0.95; Move 6; MetsMin 6.08571; source technogym
+Technogym session,Treadmill (Technogym),2026-05-26,,1200,1.493,AvgHr 138; MaxHr 158; Move 281; MetsMin 6.0875; ExerciseCompliance 133; source technogym
+Technogym session,Rower (Technogym),2026-05-26,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Climb (Technogym),2026-05-26,,229,,AvgHr 139; MaxHr 163; Move 66; MetsMin 7.23144; ExerciseCompliance 25; source technogym
+Technogym session,Treadmill (Technogym),2026-05-19,,600,1.177,level 9; Move 142; MetsMin 6.159; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-05-19,,629,0.398,Move 87; MetsMin 3.99777; source technogym
+Technogym session,Treadmill (Technogym),2026-05-19,,793,1.003,level 8.81; AvgHr 134; MaxHr 148; Move 309; MetsMin 9.42825; source technogym
+Technogym session,Rower (Technogym),2026-05-19,,600,,Move 264; MetsMin 9.5; source technogym
+Technogym session,Climb (Technogym),2026-05-19,,600,,level 6; AvgHr 121; MaxHr 134; Move 144; MetsMin 6.236; 1 segments; source technogym
+Technogym session,Strength (Technogym),2026-05-19,,510,,Move 47.1403; MetsMin 1.99653; 5 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-05-12,,1200,2.411,Move 318; MetsMin 6.7405; ExerciseCompliance 133; source technogym
+Technogym session,Treadmill (Technogym),2026-05-12,,21,0.021,level 0.95; Move 4; MetsMin 6.08571; source technogym
+Technogym session,Treadmill (Technogym),2026-05-12,,20,0.023,level 0.95; Move 4; MetsMin 5.85; source technogym
+Technogym session,Treadmill (Technogym),2026-05-12,,1200,1.488,AvgHr 128; MaxHr 160; Move 227; MetsMin 5.115; ExerciseCompliance 133; source technogym
+Technogym session,Climb (Technogym),2026-05-12,,246,,AvgHr 138; MaxHr 159; Move 71; MetsMin 7.28293; ExerciseCompliance 27; source technogym
+Technogym session,Treadmill (Technogym),2026-05-07,,1200,2.241,Move 302; MetsMin 6.458; ExerciseCompliance 133; source technogym
+Technogym session,Climb (Technogym),2026-05-07,,302,,level 6; AvgHr 148; MaxHr 168; Move 99; MetsMin 8.10993; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-05-07,,900,0.987,AvgHr 143; MaxHr 164; Move 182; MetsMin 5.396; ExerciseCompliance 100; source technogym
+Technogym session,Treadmill (Technogym),2026-04-24,,1200,2.404,Move 317; MetsMin 6.7295; ExerciseCompliance 133; source technogym
+Technogym session,Treadmill (Technogym),2026-04-24,,900,0.983,AvgHr 145; MaxHr 168; Move 195; MetsMin 5.692; ExerciseCompliance 100; source technogym
+Technogym session,Rower (Technogym),2026-04-24,,600,,Move 264; MetsMin 9.5; source technogym
+Technogym session,Strength (Technogym),2026-04-24,,450,,Move 61.6461; MetsMin 2.95901; 5 segments; source technogym
+Technogym session,Strength (Technogym),2026-04-24,,240,,Move 36.1717; MetsMin 3.25545; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-04-17,,1500,2.717,Move 366; MetsMin 6.2788; ExerciseCompliance 166; source technogym
+Technogym session,Treadmill (Technogym),2026-04-17,,33,0.037,level 0.95; Move 6; MetsMin 6.10909; source technogym
+Technogym session,Treadmill (Technogym),2026-04-17,,900,0.985,AvgHr 143; MaxHr 161; Move 173; MetsMin 5.18; ExerciseCompliance 100; source technogym
+Technogym session,Climb (Technogym),2026-04-17,,603,,AvgHr 149; MaxHr 176; Move 175; MetsMin 7.33134; ExerciseCompliance 67; source technogym
+Technogym session,Treadmill (Technogym),2026-04-14,,600,1.218,level 10; Move 148; MetsMin 6.36; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-04-14,,900,0.991,AvgHr 129; MaxHr 154; Move 179; MetsMin 5.31933; ExerciseCompliance 100; source technogym
+Technogym session,Climb (Technogym),2026-04-14,,840,,AvgHr 143; MaxHr 167; Move 234; MetsMin 7.05929; ExerciseCompliance 93; source technogym
+Technogym session,Treadmill (Technogym),2026-04-11,,1200,1.579,AvgHr 176; MaxHr 181; Move 276; MetsMin 5.984; ExerciseCompliance 133; source technogym
+Technogym session,Treadmill (Technogym),2026-04-11,,41,0.035,level 0.98; Move 8; MetsMin 5.75122; source technogym
+Technogym session,Treadmill (Technogym),2026-04-11,,1200,1.47,AvgHr 162; MaxHr 180; Move 279; MetsMin 6.0335; ExerciseCompliance 133; source technogym
+Technogym session,Climb (Technogym),2026-04-11,,600,,level 6; AvgHr 165; MaxHr 183; Move 164; MetsMin 6.961; 1 segments; source technogym
+Technogym session,Rower (Technogym),2026-04-11,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Bike (Technogym),2026-04-11,,32,0.179,level 0.95; Move 4; MetsMin 4.93125; source technogym
+Technogym session,Bike (Technogym),2026-04-11,,1080,7.835,level 6; AvgHr 175; MaxHr 183; Move 226; MetsMin 5.55889; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2026-04-09,,960,1.745,level 10; Move 204; MetsMin 5.62625; source technogym
+Technogym session,Treadmill (Technogym),2026-04-09,,26,0.03,level 0.95; Move 6; MetsMin 6.20769; source technogym
+Technogym session,Treadmill (Technogym),2026-04-09,,1200,1.495,AvgHr 149; MaxHr 170; Move 284; MetsMin 6.126; ExerciseCompliance 133; source technogym
+Technogym session,Climb (Technogym),2026-04-09,,600,,AvgHr 155; MaxHr 182; Move 158; MetsMin 6.727; ExerciseCompliance 66; source technogym
+Technogym session,Rower (Technogym),2026-04-09,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Treadmill (Technogym),2024-08-03,,1800,3.5,MaxHr 0; Move 689; MetsMin 8.26667; 1 segments; source technogym
+Technogym session,Rower (Technogym),2024-08-03,,430,,Move 189; MetsMin 9.5; source technogym
+Technogym session,Treadmill (Technogym),2024-08-03,,1680,13.44,Move 320; MetsMin 4.11659; source technogym
+Technogym session,Cardio (Technogym),2024-08-03,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2024-08-03,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2024-08-03,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Treadmill (Technogym),2024-08-01,,1905,3.6,MaxHr 0; Move 680; MetsMin 7.70738; 1 segments; source technogym
+Technogym session,Rower (Technogym),2024-08-01,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Treadmill (Technogym),2024-08-01,,900,7.2,MaxHr 0; Move 163; MetsMin 3.90601; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2024-08-01,,90,,Move 11.1111; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-10-01,,1800,3.85,MaxHr 0; Move 749; MetsMin 8.99333; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-10-01,,735,5.0,MaxHr 0; Move 172; MetsMin 5.0575; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-10-01,,780,,Move 66.6324; MetsMin 1.8452; 5 segments; source technogym
+Technogym session,Strength (Technogym),2023-10-01,,240,,Move 22.3012; MetsMin 2.00711; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2023-10-01,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2023-10-01,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2023-10-01,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-09-30,,1800,3.8,MaxHr 0; Move 741; MetsMin 8.88952; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-30,,480,,Move 45.5091; MetsMin 2.04791; 4 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-30,,660,,Move 95.6438; MetsMin 3.13016; 5 segments; source technogym
+Technogym session,Cardio (Technogym),2023-09-30,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2023-09-30,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-09-23,,1823,3.9,MaxHr 0; Move 759; MetsMin 8.99333; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-23,,510,,Move 45.5091; MetsMin 1.92744; 4 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-23,,510,,Move 58.6549; MetsMin 2.48421; 4 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-23,,960,,Move 102.897; MetsMin 2.31518; 5 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-23,,540,,Move 43.6959; MetsMin 1.74784; 4 segments; source technogym
+Technogym session,Cardio (Technogym),2023-09-23,,180,,Move 20.6349; MetsMin 2.5; 2 segments; source technogym
+Technogym session,Cardio (Technogym),2023-09-23,,90,,Move 11.1111; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2023-09-23,,90,,Move 11.1111; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-09-15,,1850,3.7,MaxHr 0; Move 713; MetsMin 8.32; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-09-15,,900,7.2,Move 180; MetsMin 4.33008; source technogym
+Technogym session,Treadmill (Technogym),2023-09-01,,1800,3.7,MaxHr 0; Move 710; MetsMin 8.52333; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-09-01,,1200,9.6,MaxHr 0; Move 222; MetsMin 4.0003; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-01,,360,,Move 33.4519; MetsMin 2.00711; 3 segments; source technogym
+Technogym session,Strength (Technogym),2023-09-01,,420,,Move 35.2651; MetsMin 1.81363; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-08-25,,1800,3.45,MaxHr 0; Move 659; MetsMin 7.91202; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-08-25,,900,7.2,MaxHr 0; Move 167; MetsMin 4.0003; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-08-25,,540,,Move 47.3223; MetsMin 1.89289; 4 segments; source technogym
+Technogym session,Strength (Technogym),2023-08-25,,240,,Move 27.7409; MetsMin 2.49668; 2 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-08-18,,1200,2.333,MaxHr 0; Move 459; MetsMin 8.26667; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-08-18,,900,7.2,MaxHr 0; Move 210; MetsMin 5.03744; 1 segments; source technogym
+Technogym session,Rower (Technogym),2023-08-18,,573,,Move 252; MetsMin 9.5; source technogym
+Technogym session,Treadmill (Technogym),2023-08-17,,1920,3.573,MaxHr 0; Move 681; MetsMin 7.66238; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-08-17,,900,7.2,MaxHr 0; Move 177; MetsMin 4.25173; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-08-17,,480,,Move 42.336; MetsMin 1.90512; 4 segments; source technogym
+Technogym session,Strength (Technogym),2023-08-17,,390,,Move 32.092; MetsMin 1.7774; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-02-13,,1560,2.167,MaxHr 0; Move 244; MetsMin 3.38095; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-02-13,,1560,1.3,MaxHr 0; Move 175; MetsMin 2.42857; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-02-13,,600,4.8,level 1; profile 2; AvgHr 0; MaxHr 0; Move 98; MetsMin 3.5163; source technogym
+Technogym session,Strength (Technogym),2023-02-13,,240,,Move 26.8343; MetsMin 2.41508; 2 segments; source technogym
+Technogym session,Strength (Technogym),2023-02-13,,360,,Move 33.4519; MetsMin 2.00711; 3 segments; source technogym
+Technogym session,Strength (Technogym),2023-02-13,,360,,Move 33.9052; MetsMin 2.03431; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-01-18,,720,5.76,level 3; profile 2; AvgHr 0; MaxHr 0; Move 132; MetsMin 3.9563; source technogym
+Technogym session,Treadmill (Technogym),2023-01-18,,1320,1.503,MaxHr 0; Move 223; MetsMin 3.65524; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-01-18,,390,,Move 35.2651; MetsMin 1.95314; 3 segments; source technogym
+Technogym session,Strength (Technogym),2023-01-18,,450,,Move 35.4917; MetsMin 1.7036; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-01-15,,1500,1.958,MaxHr 0; Move 225; MetsMin 3.23809; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2023-01-15,,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
+Technogym session,Strength (Technogym),2023-01-15,,360,,Move 36.9731; MetsMin 2.21839; 3 segments; source technogym
+Technogym session,Strength (Technogym),2023-01-15,,540,,Move 91.3832; MetsMin 3.65533; 4 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-08-01,,1500,1.875,MaxHr 0; Move 218; MetsMin 3.14286; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-08-01,,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-22,,1800,2.5,MaxHr 0; Move 282; MetsMin 3.38095; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-22,,450,,Move 73.0466; MetsMin 3.50623; 3 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-22,,450,,Move 45.9915; MetsMin 2.20759; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-22,,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-22,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-22,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-22,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-22,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-22,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-08,,1800,2.5,MaxHr 0; Move 282; MetsMin 3.38095; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-08,,300,,Move 33.9176; MetsMin 2.44207; 2 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-08,,450,,Move 73.0466; MetsMin 3.50623; 3 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-08,,450,,Move 45.9915; MetsMin 2.20759; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-08,,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
+Technogym session,Rower (Technogym),2022-05-08,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Cardio (Technogym),2022-05-08,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-08,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-08,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-08,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-08,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-02,,1830,2.44,MaxHr 0; Move 278; MetsMin 3.28571; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-02,,300,,Move 33.9176; MetsMin 2.44207; 2 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-02,,450,,Move 45.9915; MetsMin 2.20759; 3 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-02,,450,,Move 73.0466; MetsMin 3.50623; 3 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-02,,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-02,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-02,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-02,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-02,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-02,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-05-01,,1800,2.3,MaxHr 0; Move 266; MetsMin 3.19048; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-01,,450,,Move 70.0404; MetsMin 3.36194; 3 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-01,,270,,Move 31.4125; MetsMin 2.513; 2 segments; source technogym
+Technogym session,Strength (Technogym),2022-05-01,,450,,Move 44.4884; MetsMin 2.13544; 3 segments; source technogym
+Technogym session,Rower (Technogym),2022-05-01,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Cardio (Technogym),2022-05-01,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-01,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-01,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-05-01,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-04-24,,1885,2.409,MaxHr 0; Move 278; MetsMin 3.19048; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-04-24,,300,,Move 46.6936; MetsMin 3.36194; 2 segments; source technogym
+Technogym session,Strength (Technogym),2022-04-24,,270,,Move 32.9156; MetsMin 2.63325; 2 segments; source technogym
+Technogym session,Strength (Technogym),2022-04-24,,300,,Move 22.6447; MetsMin 1.63042; 2 segments; source technogym
+Technogym session,Rower (Technogym),2022-04-24,,300,,Move 132; MetsMin 9.5; source technogym
+Technogym session,Cardio (Technogym),2022-04-24,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-04-24,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-04-24,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-04-24,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Cardio (Technogym),2022-04-24,,90,,Move 10.5263; MetsMin 2.5; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-04-24,,900,7.2,MaxHr 0; Move 168; MetsMin 4.02935; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-03-06,,1875,2.344,MaxHr 0; Move 273; MetsMin 3.14286; 1 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-03-06,,780,0.78,MaxHr 0; Move 281; MetsMin 7.78962; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-03-06,,480,,Move 45.2893; MetsMin 2.03802; 4 segments; source technogym
+Technogym session,Treadmill (Technogym),2022-03-03,,1800,2.1,MaxHr 0; Move 250; MetsMin 3; 1 segments; source technogym
+Technogym session,Strength (Technogym),2022-03-03,,360,,Move 43.9874; MetsMin 2.63924; 3 segments; source technogym
+Technogym session,Strength (Technogym),2022-03-03,,540,,Move 44.7883; MetsMin 1.79153; 4 segments; source technogym
+Technogym session,Strength (Technogym),2022-03-03,,420,,Move 84.7711; MetsMin 4.35966; 2 segments; source technogym

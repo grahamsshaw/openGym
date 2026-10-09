@@ -3,6 +3,25 @@
 All converters are stdlib-only Python. Outputs go to a folder you choose
 (`bridge/out/` is git-ignored; verified samples live in `bridge/samples/`).
 
+## 0. Always import ONE combined workouts file (read this first)
+
+openGym groups imported rows by **date** but **skips whole days that
+already hold a workout**. Importing sources as separate files therefore
+drops the second source's rows on every shared day — verified: 6 phone
+sessions lost on a day the Technogym file had already claimed. Same-day
+rows inside *one* file merge into that day's workout instead of competing
+for it (proven by dry-running openGym's real `parseWorkoutCSV` +
+`mergeImport` in `bridge/dryrun.mjs`: 241 rows → 54 workouts → 241 sets,
+0 skipped).
+
+```text
+py bridge/merge_workout_csvs.py --inputs opengym_workouts.csv opengym_phone_sessions.csv --out opengym_combined.csv
+node bridge/dryrun.mjs opengym_combined.csv
+```
+
+Import weigh-ins first (never conflict), then the single combined workouts
+file. `showday.mjs <file> <YYYY-MM-DD>` prints one day's merged shape.
+
 ## 1. Technogym export → workouts + weigh-ins
 
 ```text
