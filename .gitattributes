@@ -1,0 +1,4 @@
+# PERSONAL: shell scripts must keep LF endings on Windows checkouts —
+# otherwise the web entrypoint fails with "not found" (exit 127) inside
+# the container. Upstream builds on Linux where this never bites.
+*.sh text eol=lf
