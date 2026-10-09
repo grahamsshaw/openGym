@@ -20,6 +20,13 @@ device; no server can fetch it). So the button does two jobs:
    `mergeImport` path. A local file copy stays on the phone too, so the
    transfer is inspectable, not magic.
 
+As built: phone files travel through **`POST /api/bridge/inbox`** (a
+file dropbox under `data/bridge/inbox/`, consumed by the pull chain)
+plus a **Send phone files to server** row in Settings → Data that works
+in the browser, the PWA and the paired phone app alike. Direct
+Health-Connect-to-state upload stays a custom-APK feature
+(`HEALTH-CONNECT-PLAN.md`); the inbox covers every device today.
+
 ## New server surface (personal additions, marked as such) — BUILT
 
 - `api/bridge.js` (new file): filesystem job queue under `DATA_DIR/bridge/`.

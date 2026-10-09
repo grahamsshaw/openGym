@@ -10,13 +10,16 @@ logged, conflicts aborting loudly instead of overwriting.
 ## The chain (`bridge/pull_all.bat`)
 
 1. **Pull** — `import_data.py` refreshes the Flask SQLite hub.
-2. **Convert** — the three bridge converters + `merge_workout_csvs.py`
+2. **Stage inbox** — phone files sent via Settings → Data land in
+   `data/bridge/inbox/`; recognised Health Data Export names are copied
+   over the manual export folder before converting.
+3. **Convert** — the three bridge converters + `merge_workout_csvs.py`
    regenerate one combined workouts CSV and the weigh-ins CSVs.
-3. **Push** — `bridge/autopush.mjs` (Node, no deps) logs in, `GET`s your
+4. **Push** — `bridge/autopush.mjs` (Node, no deps) logs in, `GET`s your
    state, merges with openGym's **own** `parseWorkoutCSV`/`parseBodyweight`
    + `mergeImport`, and `PUT`s back with `baseRev`. Dry-run by default;
    `--live` writes.
-4. **Log** — everything appends to `log/pull.log`.
+5. **Log** — everything appends to `log/pull.log`.
 
 ## Auth: password login, not a passkey
 

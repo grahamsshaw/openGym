@@ -73,3 +73,39 @@ test('bridge endpoints: strangers refused, pull queues once, status reports', as
   assert.equal(
     (await post('/api/bridge/pull', cookie('u_bridge_1', 0), { sources: ['nope'] })).status, 400);
 });
+
+test('bridge inbox: strangers refused, files land sanitised, junk refused', async t => {
+  const h = await startServer(t);
+  const get = (p, headers) => fetch(`${h.api}${p}`, { headers });
+  const post = (p, headers, body) => fetch(`${h.api}${p}`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json', ...headers },
+    body: JSON.stringify(body || {}),
+  });
+  const inbox = () => fs.readdirSync(path.join(h.dataDir, 'bridge', 'inbox'));
+
+  assert.equal((await post('/api/bridge/inbox', {}, { filename: 'a.csv', content: 'x' })).status, 401);
+
+  const up = await post('/api/bridge/inbox', cookie('u_bridge_1', 0),
+    { filename: 'Activity.csv', content: 'Date,Steps\n2026-10-01,5000\n' });
+  assert.equal(up.status, 200);
+  assert.deepEqual((await up.json()).file, 'Activity.csv');
+  assert.deepEqual(inbox(), ['Activity.csv']);
+
+  // A repeat name does not overwrite: it gains a timestamp.
+  await post('/api/bridge/inbox', cookie('u_bridge_1', 0),
+    { filename: 'Activity.csv', content: 'Date,Steps\n2026-10-02,6000\n' });
+  assert.equal(inbox().length, 2);
+
+  // Traversal collapses to a flat safe name (accepted as x.csv); wrong
+  // extensions, bare dots and empties are refused, nothing extra written.
+  const trav = await post('/api/bridge/inbox', cookie('u_bridge_1', 0),
+    { filename: '../x.csv', content: 'x' });
+  assert.equal(trav.status, 200);
+  assert.deepEqual((await trav.json()).file, 'x.csv');
+  for (const bad of ['x.exe', 'x', '', '.csv']) {
+    const r = await post('/api/bridge/inbox', cookie('u_bridge_1', 0),
+      { filename: bad, content: 'x' });
+    assert.equal(r.status, 400, bad);
+  }
+  assert.equal(inbox().length, 3);
+});

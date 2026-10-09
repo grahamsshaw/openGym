@@ -21,6 +21,10 @@ export const SOURCES = ['technogym', 'wii_fit', 'health_connect'];
 /** A runner heartbeat fresher than this counts as "a runner is watching". */
 const RUNNER_FRESH_MS = 10 * 60 * 1000;
 
+/** Largest phone file accepted, and which names may land in the inbox. */
+export const INBOX_MAX_BYTES = 5 * 1024 * 1024;
+const INBOX_OK = ['.csv', '.json', '.xml'];
+
 const dir = () => process.env.DATA_DIR || '/data';
 const bridgeDir = () => path.join(dir(), 'bridge');
 const jobsDir = () => path.join(bridgeDir(), 'jobs');
@@ -79,4 +83,34 @@ export function pullStatus() {
     pending: pendingJobs().map((j) => ({ id: j.id, sources: j.sources, at: j.at })),
     last: readJson(resultFile(), null),
   };
+}
+
+function inboxDir() {
+  return path.join(bridgeDir(), 'inbox');
+}
+
+/**
+ * Accept one uploaded phone file into the inbox the pull chain consumes.
+ * Returns `{ file }` or `{ error }` — never throws for bad input, so the
+ * route maps straight to 200/400. Names are sanitised to a flat safe
+ * basename (no directories, no odd extensions); collisions gain a timestamp
+ * rather than overwriting.
+ */
+export function inboxFile({ filename, content }) {
+  const base = path.basename(String(filename || '')).replace(/[^A-Za-z0-9_.-]/g, '_');
+  const ext = base.includes('.') ? base.slice(base.lastIndexOf('.')).toLowerCase() : '';
+  if (!base || base === '.' || base === '..' || base.startsWith('.') || !INBOX_OK.includes(ext)) {
+    return { error: 'only .csv, .json or .xml files are accepted' };
+  }
+  const text = typeof content === 'string' ? content : '';
+  if (Buffer.byteLength(text, 'utf8') > INBOX_MAX_BYTES) {
+    return { error: 'file too large (5 MB max)' };
+  }
+  fs.mkdirSync(inboxDir(), { recursive: true });
+  let target = path.join(inboxDir(), base);
+  if (fs.existsSync(target)) {
+    target = path.join(inboxDir(), `${Date.now()}-${base}`);
+  }
+  fs.writeFileSync(target, text);
+  return { file: path.basename(target), bytes: Buffer.byteLength(text, 'utf8') };
 }

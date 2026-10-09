@@ -43,6 +43,7 @@ import { ServerSyncSection, KeptChangesRows, leaveServer, connectServer, passkey
 import { passwordOn, PasswordRow, openPasswordSignIn, openPasswordRegister } from '../components/PasswordAuth.jsx'
 import { usePasskeys, PasskeysRow, DeviceLinkRow, openDeviceLinkRedeem } from '../components/Passkeys.jsx'
 import { Section, Row, SelectRow, Switch, Segmented, Button, TextField, SearchField } from '../components/ui.jsx'
+import { BridgeDataSection } from '../components/BridgeRows.jsx'
 import { PAGES, ROOT_GROUPS, pageVisible, searchSettings, pageTrail } from './settings-pages.js'
 
 /* Settings (v1.3.11). The root is one screen: an account card, eleven rows that each open a page
@@ -798,6 +799,8 @@ export default function Settings({ page = null, find = null, via = null }) {
         <Row icon="key" iconTint="var(--teal)" title={t('Import from Hevy')}
           subtitle={t('Pull your history with a Hevy Pro API key')}
           accessory="chevron" onClick={importFromHevy} />
+        {/* PERSONAL-BRIDGE: server pull trigger + phone-file inbox. */}
+        <BridgeDataSection />
       </Section>
       {hasMedia && <Section><MediaRow /></Section>}
       <Section>

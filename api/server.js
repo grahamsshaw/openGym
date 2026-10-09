@@ -962,7 +962,8 @@ const THROTTLED = {
   'POST /api/account/passkeys/options': null, 'POST /api/account/device-link': null,
   'DELETE /api/account/passkeys': null,
   // PERSONAL-BRIDGE: pull triggers spend the burst budget only.
-  'POST /api/bridge/pull': null, 'GET /api/bridge/status': null
+  'POST /api/bridge/pull': null, 'GET /api/bridge/status': null,
+  'POST /api/bridge/inbox': null
 };
 
 // Which address the throttle counts against. Unlike clientIp() above, which only labels a log
@@ -2310,6 +2311,18 @@ const routes = {
     const user = readSession(req);
     if (!user) return json(res, 401, { error: 'not signed in' });
     json(res, 200, { ok: true, ...personalBridge.pullStatus() });
+  },
+  // PERSONAL-BRIDGE: file dropbox for phone exports (Health Data Export
+  // CSVs picked in the app). Stored under data/bridge/inbox/ for the pull
+  // chain to consume; never parsed or merged here.
+  'POST /api/bridge/inbox': async (req, res) => {
+    const user = readSession(req);
+    if (!user) return json(res, 401, { error: 'not signed in' });
+    const body = await readBody(req);
+    const out = personalBridge.inboxFile({ filename: body.filename, content: body.content });
+    if (out.error) return json(res, 400, { error: out.error });
+    audit(req, 'bridge.inbox.upload', { ok: true, user, msg: out.file });
+    json(res, 200, { ok: true, ...out });
   },
 
   'GET /api/push/public-key': async (req, res) => json(res, 200, { key: vapid.publicKey }),

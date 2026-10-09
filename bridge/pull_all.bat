@@ -12,6 +12,11 @@ if not exist "%OUT%" mkdir "%OUT%"
 
 echo [%DATE% %TIME%] pull start >> "%LOG%"
 py "%FITNESS%\scripts\import_data.py" --source all --days 30 >> "%LOG%" 2>&1
+REM Phone files uploaded from the app land in the server inbox; stage any
+REM Health Data Export CSVs alongside the manual exports before converting.
+if exist "%OG%\data\bridge\inbox\Activity.csv" copy /Y "%OG%\data\bridge\inbox\Activity.csv" "%FITNESS%\data\health_data_export\" >> "%LOG%" 2>&1
+if exist "%OG%\data\bridge\inbox\Sleep.csv" copy /Y "%OG%\data\bridge\inbox\Sleep.csv" "%FITNESS%\data\health_data_export\" >> "%LOG%" 2>&1
+if exist "%OG%\data\bridge\inbox\Vitals.csv" copy /Y "%OG%\data\bridge\inbox\Vitals.csv" "%FITNESS%\data\health_data_export\" >> "%LOG%" 2>&1
 py "%OG%\bridge\technogym_export_to_opengym.py" --input "%FITNESS%\data\technogym_export" --out "%OUT%" >> "%LOG%" 2>&1
 py "%OG%\bridge\wii_to_opengym.py" --input "%FITNESS%\data\wii_fit" --out "%OUT%" >> "%LOG%" 2>&1
 py "%OG%\bridge\health_connect_to_opengym.py" --input "%FITNESS%\data\health_data_export" --out "%OUT%" >> "%LOG%" 2>&1

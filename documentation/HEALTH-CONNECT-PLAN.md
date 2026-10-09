@@ -1,15 +1,16 @@
 # Health Connect plan (Android)
 
-## Today (works now, no new code)
+## Today (works now, no new code besides the inbox)
 
-1. On the phone: **Health Data Export** app (Play Store) reads Health
-   Connect on-device and writes `Activity.csv` / `Sleep.csv` / `Vitals.csv`.
-2. Copy the export folder to the PC (USB, Syncthing, whatever is handy).
-3. `py bridge/health_connect_to_opengym.py --input <folder> --out bridge/out`
-4. Import `opengym_phone_sessions.csv` via **Settings → Data → Import from
-   another app**. Sessions land as `"<type> (phone)"` next to `(Technogym)`
-   gym rows. Steps/sleep/vitals land in `phone_daily.json` (no CSV columns
-   exist for them — kept honestly separate, never faked into workouts).
+1. On the phone: **Health Data Export** app reads Health Connect on-device
+   and writes `Activity.csv` / `Sleep.csv` / `Vitals.csv`.
+2. In openGym (phone browser, PWA, or paired app): **Settings → Data →
+   Send phone files to server**, pick the CSVs. They land in
+   `data/bridge/inbox/` (`POST /api/bridge/inbox`: signed-in only, 5 MB
+   cap, names sanitised, timestamped on collision).
+3. The pull chain stages recognised names over the export folder and
+   converts as usual — sessions import through the same path, named
+   `"<type> (phone)"`, daily steps/sleep/vitals to `phone_daily.json`.
 
 ## Later (in-app import button)
 
