@@ -240,10 +240,11 @@ Walking (phone),Walking (phone),2026-10-03,13:33,2760,1.521,source health-connec
 Walking (phone),Walking (phone),2026-10-03,14:07,1320,0.85,source health-connect
 Walking (phone),Walking (phone),2026-10-04,10:39,1140,0.665,source health-connect
 Walking (phone),Walking (phone),2026-10-04,13:05,1560,0.75,source health-connect
-Free training,Run 700 Excite Live: Stamina routine,2026-10-10,00:00,1200,,Run Excite Live; Move 278; source technogym-live
-Free training,Synchro 700 Excite Live: Quick Start,2026-10-10,00:00,60,,Synchro Excite Live; Move 22; source technogym-live
-Free training,Synchro 700 Excite Live: Total body routine,2026-10-10,00:00,900,,Synchro Excite Live; Move 160; source technogym-live
-Free training,Climb 700 Excite Live: Glutes routine,2026-10-10,00:00,600,,Climb Excite Live; Move 155; source technogym-live
+Free training,Run 700 Excite Live: Stamina routine,2026-10-10,00:00,1200,2.16,Run Excite Live; avg 6.5 km/h; climb 26 m; Move 278; source technogym-live
+Free training,Synchro 700 Excite Live: Quick Start,2026-10-10,00:00,100,0.13,Synchro Excite Live; Move 22; source technogym-live
+Free training,Synchro 700 Excite Live: Total body routine,2026-10-10,00:00,900,0.99,Synchro Excite Live; HR 119.0/137.0; avg 60 W; Move 160; source technogym-live
+Free training,Synchro 700 Excite Live: Quick Start,2026-10-10,00:00,47,0.01,Synchro Excite Live; Move 1; source technogym-live
+Free training,Climb 700 Excite Live: Glutes routine,2026-10-10,00:00,600,,Climb Excite Live; 24 floors; Move 155; source technogym-live
 Free training,Rowing (indoor),2026-10-10,00:00,300,,Activities; Move 132; source technogym-live
-Free training,Bike 700 Excite Live: Quick Start,2026-10-10,00:00,60,,Bike Excite Live; Move 11; source technogym-live
-Free training,Bike 700 Excite Live: Lose weight routine,2026-10-10,00:00,1200,,Bike Excite Live; Move 197; source technogym-live
+Free training,Bike 700 Excite Live: Quick Start,2026-10-10,00:00,73,0.42,Bike Excite Live; avg 65 W; avg 65 rpm; Move 11; source technogym-live
+Free training,Bike 700 Excite Live: Lose weight routine,2026-10-10,00:00,1200,7.63,Bike Excite Live; avg 85 W; avg 73 rpm; Move 197; source technogym-live

@@ -183,7 +183,9 @@ def convert_db(db_path: str | Path, after: str) -> list[dict]:
         "SELECT w.workout_name, w.started_at, we.exercise_name, "
         "we.equipment_name, we.machine, we.resistance_type, "
         "we.duration_seconds, we.calories, we.moves, we.compliance, "
-        "we.total_weight_kg "
+        "we.total_weight_kg, we.distance_m, we.avg_speed_kmh, "
+        "we.avg_hr_bpm, we.max_hr_bpm, we.elevation_m, we.floors_climbed, "
+        "we.avg_power_w, we.avg_rpm "
         "FROM workouts w JOIN workout_exercises we "
         "ON we.workout_id = w.id "
         "WHERE w.source = 'technogym' AND date(w.started_at) > date(?) "
@@ -197,9 +199,8 @@ def convert_db(db_path: str | Path, after: str) -> list[dict]:
     for row in rows:
         # openGym needs something measured per row (duration or distance);
         # calories or a weight total alone cannot form a set there. Skipped
-        # rows are counted and reported, never silently absorbed — today's
-        # 1-MOVE machine blip is the honest example of what goes here.
-        if row["duration_seconds"] is None:
+        # rows are counted and reported, never silently absorbed.
+        if row["duration_seconds"] is None and row["distance_m"] is None:
             skipped += 1
             continue
         bits = []
@@ -207,6 +208,20 @@ def convert_db(db_path: str | Path, after: str) -> list[dict]:
             bits.append(str(row["machine"]))
         if row["resistance_type"]:
             bits.append(str(row["resistance_type"]))
+        if row["avg_speed_kmh"] is not None:
+            bits.append(f"avg {row['avg_speed_kmh']:g} km/h")
+        if row["avg_hr_bpm"] is not None or row["max_hr_bpm"] is not None:
+            bits.append("HR {}/{}".format(
+                row["avg_hr_bpm"] if row["avg_hr_bpm"] is not None else "?",
+                row["max_hr_bpm"] if row["max_hr_bpm"] is not None else "?"))
+        if row["elevation_m"] is not None:
+            bits.append(f"climb {row['elevation_m']:g} m")
+        if row["floors_climbed"] is not None:
+            bits.append(f"{row['floors_climbed']} floors")
+        if row["avg_power_w"] is not None:
+            bits.append(f"avg {row['avg_power_w']:g} W")
+        if row["avg_rpm"] is not None:
+            bits.append(f"avg {row['avg_rpm']:g} rpm")
         if row["compliance"] is not None:
             bits.append(f"compliance {row['compliance']:g}")
         if row["moves"] is not None:
@@ -215,13 +230,14 @@ def convert_db(db_path: str | Path, after: str) -> list[dict]:
             bits.append(f"total {row['total_weight_kg']:g} kg")
         bits.append("source technogym-live")
         started = str(row["started_at"] or "")
+        dist_km = round(row["distance_m"] / 1000, 3) if row["distance_m"] else ""
         workouts.append({
             "workout name": row["workout_name"] or "Technogym session",
             "exercise": row["exercise_name"] or "Gym (Technogym)",
             "date": started[:10],
             "start time": started[11:16] if len(started) > 16 else "",
             "duration seconds": row["duration_seconds"] or "",
-            "distance km": "",
+            "distance km": dist_km,
             "note": "; ".join(bits),
         })
     if skipped:
