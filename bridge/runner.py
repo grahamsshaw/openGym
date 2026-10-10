@@ -130,6 +130,7 @@ def run_chain(sources: list[str]) -> dict:
     converters = [
         ([sys.executable, str(bridge / "technogym_export_to_opengym.py"),
           "--input", str(flask / "data" / "technogym_export"),
+          "--db", str(flask / "data" / "fitness.db"),
           "--out", str(out)], "technogym"),
         ([sys.executable, str(bridge / "wii_to_opengym.py"),
           "--input", str(flask / "data" / "wii_fit"),

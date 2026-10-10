@@ -1,35 +1,38 @@
-"""Convert a Technogym export folder to openGym import CSVs.
+"""Convert Technogym data to openGym import CSVs — export files and/or live DB.
 
-Reads the ``indooractivities`` / ``biometrics`` JSON files produced by the
-Mywellness export (same shape the live API returns) and writes two files
-openGym's **Settings → Data → Import from another app** accepts directly:
+Two inputs, one output (see ``documentation/BRIDGE-GUIDE.md``):
 
-- ``opengym_workouts.csv`` — one row per cardio/strength session. openGym
-  matches the ``exercise`` column against its library; unrecognised names
-  become your own exercises, so nothing is dropped.
-- ``opengym_weighins.csv`` — one row per weigh-in (``date,weight``), from
-  the biometrics file plus ``UserWeight`` entries inside sessions.
+- ``--input``: the ``indooractivities`` / ``biometrics`` JSON export (a
+  frozen snapshot; same shape the live API returns). Yields inferred
+  machine labels (treadmill / bike / rower / climb / strength) because the
+  export names no machine.
+- ``--db``: the Flask ``fitness.db``, holding sessions pulled live by
+  ``import_data.py`` — these carry the real ``physicalActivityName`` and
+  ``equipmentName``. Only sessions NEWER than the newest export-file
+  session are emitted, so the frozen snapshot and the live pull never
+  double-report the same training.
 
-What the export does and does not say (verified against a real 167-session
+Writes ``opengym_workouts.csv`` (one row per session) and
+``opengym_weighins.csv`` (``date,weight``) for openGym's **Settings →
+Data → Import from another app**.
+
+What the data does and does not say (verified against a real 167-session
 export; see ``documentation/TECHNOGYM-PROGRAMS.md``):
 
-- It records Duration, Calories, MOVEs, distance/speed/pace, heart rate,
-  power/RPM, elevation/floors, METs/VO2, compliance, a numeric ``Level``
-  and a numeric ``Profile`` code, plus per-segment summaries.
-- It does NOT name the program ("Hills", "Weight Loss") or the machine.
-  The ``exercise`` column below is therefore an *inferred* label from the
-  metrics present (treadmill / bike / rower / climb / strength). Rows
-  imported from the live API (which carries ``physicalActivityName`` and
-  ``equipmentName``) should prefer those names — see ``--live-json``.
+- Sessions record Duration, Calories, MOVEs, distance/speed/pace, heart
+  rate, power/RPM, elevation/floors, METs/VO2, compliance, a numeric
+  ``Level`` and a numeric ``Profile`` code, plus per-segment summaries.
+- Nothing names the program ("Hills", "Weight Loss").
 - Everything useful for later program inference (Level, Profile, HR,
-  segment count) is kept in the ``note`` column so it survives the import
-  and is visible on the session.
+  segment count, machine) is kept in the ``note`` column so it survives
+  the import and is visible on the session.
 
 Usage::
 
     py bridge/technogym_export_to_opengym.py --input data/technogym_export --out bridge/out
+    py bridge/technogym_export_to_opengym.py --input data/technogym_export --db data/fitness.db --out bridge/out
 
-Re-running is safe: the output is a pure function of the input files.
+Re-running is safe: the output is a pure function of the inputs.
 openGym itself skips days that already hold a workout, so importing twice
 never duplicates anything.
 """
@@ -156,10 +159,82 @@ def convert_export(indoor: list, biometrics: list) -> tuple[list[dict], list[dic
     return workouts, weighins
 
 
+def convert_db(db_path: str | Path, after: str) -> list[dict]:
+    """Convert live-pulled Flask sessions newer than ``after`` (YYYY-MM-DD).
+
+    Reads ``workouts`` + ``workout_exercises`` (+ equipment names) with
+    ``source = 'technogym'``. These rows carry the live API's real activity
+    and machine names, so no metric-guessing is needed. The ``after`` cutoff
+    (newest export-file session) keeps the frozen snapshot and the live
+    pull from double-reporting the same training.
+
+    Args:
+        db_path: Path to the Flask ``fitness.db``.
+        after: Only sessions with a date strictly after this are emitted.
+
+    Returns:
+        Workout rows in the same shape as :func:`convert_export`.
+    """
+    import sqlite3
+
+    db = sqlite3.connect(db_path)
+    db.row_factory = sqlite3.Row
+    rows = db.execute(
+        "SELECT w.workout_name, w.started_at, we.exercise_name, "
+        "we.equipment_name, we.machine, we.resistance_type, "
+        "we.duration_seconds, we.calories, we.moves, we.compliance, "
+        "we.total_weight_kg "
+        "FROM workouts w JOIN workout_exercises we "
+        "ON we.workout_id = w.id "
+        "WHERE w.source = 'technogym' AND date(w.started_at) > date(?) "
+        "ORDER BY w.started_at, we.exercise_order",
+        (after,),
+    ).fetchall()
+    db.close()
+
+    workouts: list[dict] = []
+    skipped = 0
+    for row in rows:
+        # openGym needs something measured per row (duration or distance);
+        # calories or a weight total alone cannot form a set there. Skipped
+        # rows are counted and reported, never silently absorbed — today's
+        # 1-MOVE machine blip is the honest example of what goes here.
+        if row["duration_seconds"] is None:
+            skipped += 1
+            continue
+        bits = []
+        if row["machine"]:
+            bits.append(str(row["machine"]))
+        if row["resistance_type"]:
+            bits.append(str(row["resistance_type"]))
+        if row["compliance"] is not None:
+            bits.append(f"compliance {row['compliance']:g}")
+        if row["moves"] is not None:
+            bits.append(f"Move {row['moves']:g}")
+        if row["total_weight_kg"] is not None:
+            bits.append(f"total {row['total_weight_kg']:g} kg")
+        bits.append("source technogym-live")
+        started = str(row["started_at"] or "")
+        workouts.append({
+            "workout name": row["workout_name"] or "Technogym session",
+            "exercise": row["exercise_name"] or "Gym (Technogym)",
+            "date": started[:10],
+            "start time": started[11:16] if len(started) > 16 else "",
+            "duration seconds": row["duration_seconds"] or "",
+            "distance km": "",
+            "note": "; ".join(bits),
+        })
+    if skipped:
+        print(f"live rows skipped (nothing measurable): {skipped}")
+    return workouts
+
+
 def main() -> None:
-    """CLI entry point: read export, write openGym CSVs."""
+    """CLI entry point: read export and/or live DB, write openGym CSVs."""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="Technogym export folder")
+    parser.add_argument("--db", default=None,
+                        help="Flask fitness.db for live-pulled sessions newer than the export")
     parser.add_argument("--out", required=True, help="Output folder for CSVs")
     args = parser.parse_args()
 
@@ -178,6 +253,12 @@ def main() -> None:
         biometrics.extend(bio if isinstance(bio, list) else [])
 
     workouts, weighins = convert_export(indoor, biometrics)
+
+    if args.db:
+        newest = max((str(item.get("on") or "")[:10] for item in indoor), default="")
+        live = convert_db(args.db, newest)
+        workouts.extend(live)
+        print(f"live sessions after {newest}: {len(live)}")
 
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)

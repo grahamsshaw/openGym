@@ -25,7 +25,7 @@ for /f "delims=" %%F in ('dir /b /o-d "%OG%\data\bridge\inbox\*%1.csv" 2^>nul') 
 :staged_done
 exit /b 0
 :after_stage
-py "%OG%\bridge\technogym_export_to_opengym.py" --input "%FITNESS%\data\technogym_export" --out "%OUT%" >> "%LOG%" 2>&1
+py "%OG%\bridge\technogym_export_to_opengym.py" --input "%FITNESS%\data\technogym_export" --db "%FITNESS%\data\fitness.db" --out "%OUT%" >> "%LOG%" 2>&1
 py "%OG%\bridge\wii_to_opengym.py" --input "%FITNESS%\data\wii_fit" --out "%OUT%" >> "%LOG%" 2>&1
 py "%OG%\bridge\health_connect_to_opengym.py" --input "%FITNESS%\data\health_data_export" --out "%OUT%" >> "%LOG%" 2>&1
 py "%OG%\bridge\merge_workout_csvs.py" --inputs "%OUT%\opengym_workouts.csv" "%OUT%\opengym_phone_sessions.csv" --out "%OUT%\opengym_combined.csv" >> "%LOG%" 2>&1
