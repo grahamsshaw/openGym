@@ -15,7 +15,7 @@
   },
   {
     "machine": "Bike Excite Live",
-    "qr_payload": null,
+    "qr_payload": "model-matched (serials vary per unit; checksum ignored)",
     "opengym_exercises": [],
     "program_modes": [
       "Quick Start",
@@ -27,11 +27,18 @@
       "Sessions",
       "Outdoor"
     ],
-    "notes": "scan with a generic reader; paste raw text into qr_payload"
+    "notes": "Decoded Oct 2026 from gym scans: serial|facility|UnityCoach|Screen15_6|Android|False|model|ac095868|fw 2.19.2.262|PlatformEssential||0|1. Match on model_code+facility.",
+    "model_code": "1121",
+    "serials": [
+      "DFCG4A025000328"
+    ],
+    "console_routines": [],
+    "facility_id": "57157b28-8d3e-4bdf-8477-2fe0a138a2e3",
+    "qr_scheme": "qractive"
   },
   {
     "machine": "Climb Excite Live",
-    "qr_payload": null,
+    "qr_payload": "model-matched (serials vary per unit; checksum ignored)",
     "opengym_exercises": [],
     "program_modes": [
       "Quick Start",
@@ -43,7 +50,20 @@
       "Sessions",
       "Outdoor"
     ],
-    "notes": "scan with a generic reader; paste raw text into qr_payload"
+    "notes": "Decoded Oct 2026 from gym scans: serial|facility|UnityCoach|Screen15_6|Android|False|model|ac095868|fw 2.19.2.262|PlatformEssential||0|1. Match on model_code+facility.",
+    "model_code": "1115",
+    "serials": [
+      "DFEG3A025001326",
+      "DFEG3A025001324"
+    ],
+    "console_routines": [
+      "Agility booster",
+      "Lose weight routine",
+      "Glutes routine",
+      "Total body routine"
+    ],
+    "facility_id": "57157b28-8d3e-4bdf-8477-2fe0a138a2e3",
+    "qr_scheme": "qractive"
   },
   {
     "machine": "Low Row Sel",
@@ -54,7 +74,7 @@
   },
   {
     "machine": "Run Excite Live",
-    "qr_payload": null,
+    "qr_payload": "model-matched (serials vary per unit; checksum ignored)",
     "opengym_exercises": [],
     "program_modes": [
       "Quick Start",
@@ -66,7 +86,20 @@
       "Sessions",
       "Outdoor"
     ],
-    "notes": "scan with a generic reader; paste raw text into qr_payload"
+    "notes": "Decoded Oct 2026 from gym scans: serial|facility|UnityCoach|Screen15_6|Android|False|model|ac095868|fw 2.19.2.262|PlatformEssential||0|1. Match on model_code+facility.",
+    "model_code": "1097",
+    "serials": [
+      "DFKGAA025004315",
+      "DFKGAA025004310"
+    ],
+    "console_routines": [
+      "Agility booster",
+      "Legs strengthening",
+      "Lose weight routine",
+      "Stamina routine"
+    ],
+    "facility_id": "57157b28-8d3e-4bdf-8477-2fe0a138a2e3",
+    "qr_scheme": "qractive"
   },
   {
     "machine": "Shoulder Press Sel",
@@ -77,7 +110,7 @@
   },
   {
     "machine": "Synchro Excite Live",
-    "qr_payload": null,
+    "qr_payload": "model-matched (serials vary per unit; checksum ignored)",
     "opengym_exercises": [],
     "program_modes": [
       "Quick Start",
@@ -89,11 +122,24 @@
       "Sessions",
       "Outdoor"
     ],
-    "notes": "scan with a generic reader; paste raw text into qr_payload"
+    "notes": "Decoded Oct 2026 from gym scans: serial|facility|UnityCoach|Screen15_6|Android|False|model|ac095868|fw 2.19.2.262|PlatformEssential||0|1. Match on model_code+facility.",
+    "model_code": "1103",
+    "serials": [
+      "DF5G4A025000180",
+      "DF5G4A025000184"
+    ],
+    "console_routines": [
+      "Lose weight",
+      "Stamina routine",
+      "Glutes routine",
+      "Total body routine"
+    ],
+    "facility_id": "57157b28-8d3e-4bdf-8477-2fe0a138a2e3",
+    "qr_scheme": "qractive"
   },
   {
     "machine": "Treadmill",
-    "qr_payload": null,
+    "qr_payload": "model-matched (serials vary per unit; checksum ignored)",
     "opengym_exercises": [],
     "program_modes": [
       "Quick Start",
@@ -102,6 +148,33 @@
       "Constant Heart Rate",
       "Fitness Test"
     ],
-    "notes": "scan with a generic reader; paste raw text into qr_payload"
+    "notes": "Decoded Oct 2026 from gym scans: serial|facility|UnityCoach|Screen15_6|Android|False|model|ac095868|fw 2.19.2.262|PlatformEssential||0|1. Match on model_code+facility.",
+    "model_code": "1097",
+    "serials": [
+      "DFKGAA025004315",
+      "DFKGAA025004310"
+    ],
+    "console_routines": [
+      "Agility booster",
+      "Legs strengthening",
+      "Lose weight routine",
+      "Stamina routine"
+    ],
+    "facility_id": "57157b28-8d3e-4bdf-8477-2fe0a138a2e3",
+    "qr_scheme": "qractive"
+  },
+  {
+    "machine": "Skill Rower (Technogym)",
+    "model_code": null,
+    "serials": [
+      "RWX25003798XAB",
+      "RWX25003549XAB"
+    ],
+    "facility_id": null,
+    "qr_scheme": "skillrow",
+    "qr_payload": "serial-only codes; not picked up by the mywellness app",
+    "opengym_exercises": [],
+    "program_modes": [],
+    "notes": "Rower QRs carry only a serial (s.technogym.com/skillrow/rower). No facility/model block."
   }
 ]

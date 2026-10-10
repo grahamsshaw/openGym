@@ -26,18 +26,33 @@ One entry per machine, seeded from `equipment_catalog.json`:
 `qr_payload` stays `null` until a real scan is recorded — the table works
 before that (manual machine pick) and the scanner fills payloads in later.
 
-## Payload convention (proposal — finalised after first real scans)
+## Payload convention (decoded October 2026 — no guessing needed)
 
-Technogym console codes are scanned today by the mywellness app to join the
-machine to a session; their raw text outside that app is currently unknown.
-Next gym visit: scan 2–3 machines with any generic QR-reader app and paste
-the raw strings here. Matcher design accepts anything:
+A `qractive` QR is one base64 blob (checksum after the `.` is ignored),
+`| `-separated:
 
-1. **Exact match** on a recorded `qr_payload` → the machine, instantly.
-2. **Substring/fuzzy match** against machine names and aliases (for codes
-   that embed serial numbers or URLs with a machine id).
-3. **Pair-on-first-scan**: an unknown code offers the machine list once;
-   the choice is saved, so each code is taught exactly once.
+```text
+SERIAL | FACILITY-UUID | UnityCoach | Screen15_6 | Android | False
+| MODEL | ac095868 | 2.19.2.262 | PlatformEssential || 0 | 1
+```
+
+Verified from gym scans (facility matches the Technogym export):
+
+| Machine | Model | Serials seen |
+|---|---|---|
+| Treadmill / Run Excite Live | 1097 | DFKGAA025004315, DFKGAA025004310 |
+| Synchro Excite Live | 1103 | DF5G4A025000180, DF5G4A025000184 |
+| Climb Excite Live | 1115 | DFEG3A025001326, DFEG3A025001324 |
+| Bike Excite Live | 1121 | DFCG4A025000328 |
+| Skill rower | — | `skillrow/rower?et=RWX…` serial-only, no facility block |
+
+**Matcher rule: match on `model_code` (+ facility as sanity check),
+ignore serial and checksum.** Two units of the same type differ only in
+serial — exactly as predicted. Console routine lists per model are in
+`qr_mapping.json` (`console_routines`). The `qractive` URL itself returns
+**403 without the app session**, so there is no public repository to
+query — identity is decoded offline, routine *content* lives in the
+mywellness backend (see below).
 
 ## Integration points (openGym code, all existing)
 
