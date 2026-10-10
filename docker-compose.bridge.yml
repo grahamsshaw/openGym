@@ -1,0 +1,25 @@
+# The bridge runner hears POST /api/bridge/pull jobs. Separate file from
+# upstream's compose so upstream merges never touch it. Shares the data
+# dir (job queue) by bind mount; talks to openGym over the published web
+# port, so no shared Docker network is needed. Credentials live in
+# bridge/.env (git-ignored by the `.env` rule); Technogym login stays in
+# the Flask project's own .env. Start it with:
+#   docker compose -f docker-compose.bridge.yml up -d --build
+name: opengym-bridge
+
+services:
+  bridge:
+    build:
+      context: ./bridge
+    restart: unless-stopped
+    env_file: ./bridge/.env
+    volumes:
+      # Job queue + heartbeat + inbox, shared with the api container.
+      - ./data:/data
+      # This project's bridge scripts. Read-write: converters write out/.
+      # out/ is git-ignored; scripts themselves are versioned.
+      - ./bridge:/bridge
+      # The Flask project (import scripts, export data, Technogym login).
+      # Read-write: import_data.py writes its log and the Flask database.
+      # Set FLASK_DIR_HOST to its location; default is the sibling folder.
+      - ${FLASK_DIR_HOST:-../Personal Fitness Tracker}:/flask
