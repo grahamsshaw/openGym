@@ -22,4 +22,4 @@ services:
       # The Flask project (import scripts, export data, Technogym login).
       # Read-write: import_data.py writes its log and the Flask database.
       # Set FLASK_DIR_HOST to its location; default is the sibling folder.
-      - ${FLASK_DIR_HOST:-../Personal Fitness Tracker}:/flask
+      - "${FLASK_DIR_HOST:-../Personal Fitness Tracker}:/flask"
