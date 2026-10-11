@@ -43,6 +43,20 @@ worth one probe call when the server is back, but not planned on.
 4. **Fallback**: time + calories across exercise types as rough intensity —
    always available, never misleading.
 
+## Inference v1 (built): stated > shape > silence
+
+`bridge/program_infer.py`, applied to export rows at convert time (live
+rows already state their program in the exercise name):
+
+1. Name contains a machine-menu phrase → that phrase, 0.9.
+2. Level ≥ 8 with climb, or level ≥ 10 → Hills, 0.7/0.65.
+3. 20+ min with flat heart rate → Steady, 0.6.
+4. Else nothing. Intervals are never guessed without block shapes.
+
+Guesses render in notes as "likely Hills (7/10)". On the verified export,
+4 of 167 rows earn one — conservative on purpose. TCX laps and logged
+modes stay the upgrade path (see above).
+
 ## AI hook (deferred with the rest of the AI work)
 
 The Coach sees only its payload allowlist, so program labels and segment

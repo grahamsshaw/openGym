@@ -1,4 +1,8 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
+import { scanCode, importCodeFromImage } from './lib/scan.js' // PERSONAL-QR
+import CameraScan from './components/CameraScan.jsx' // PERSONAL-QR
+import { resolveQr } from './lib/qr-resolve.js' // PERSONAL-QR
+import QR_MACHINES from './lib/equipment-qr.json' // PERSONAL-QR (generated; see bridge/export_qr.py)
 import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { EXDB, EXIDX, BODYPARTS, isCardio, isBodyweightEq, allExercises, equipmentOf, smOf, searchExercises, similarExercises, exOr, isAssisted, betterWeight, beatsWeight, isCustomEx } from './lib/exercises.js'
@@ -61,6 +65,7 @@ import { moveWorkout, sameWorkout, startTimeOf, durationMinOf, setWorkoutDuratio
 import { editCompletedSession, editLeftEmpty, editedRecord, editChangesNothing } from './lib/session-edit.js'
 import { stampWorkout } from './lib/sync-merge.js'
 import { weeklyWeights } from './lib/bodyweight.js'
+import { movesByDay } from './lib/moves.js' // PERSONAL-MOVES
 import { workoutText } from './lib/workout-text.js'
 import { workoutCardModel, layoutWorkoutCard, drawWorkoutCard, viewAspect, CARD_FONT } from './lib/workout-card.js'
 import { copyText } from './lib/clipboard.js'
@@ -406,6 +411,30 @@ function WeighIns() {
   </>
 }
 export const weighInsSheet = () => ui().openSheet(close => <WeighIns close={close} />)
+
+// PERSONAL-MOVES: day-by-day MOVEs history, newest first. Weeks are plain
+// calendar rows here rather than averages — MOVEs add, weights average.
+function MovesHistory() {
+  const st = useStore(s => s.S)
+  const days = movesByDay(st.workouts).slice().reverse()
+  const total = days.reduce((sum, d) => sum + d.moves, 0)
+  if (!days.length) return <>
+    <h3>{t('Moves')}</h3>
+    <div className="empty"><div className="ico"><Icon name="flame" /></div>{t('No MOVEs yet. They arrive with gym sessions.')}</div>
+  </>
+  return <>
+    <h3 style={{ marginBottom: 2 }}>{t('Moves')}</h3>
+    <div className="muted small" style={{ marginBottom: 10 }}>{t('{0} total', total.toLocaleString())}</div>
+    <div className="chart"><LineChart points={days.map(d => ({ t: new Date(d.d + 'T12:00:00').getTime(), y: d.moves, d: d.d }))} h={140} unit="MOVEs" /></div>
+    <div className="list" style={{ gap: 0, marginTop: 8 }}>{days.map(d =>
+      <div key={d.d} className="row between" style={{ margin: '10px 2px' }}>
+        <span className="small" style={{ fontWeight: 600 }}>{fmtDate(d.d)}</span>
+        <span className="small">{d.moves.toLocaleString()} MOVEs</span>
+      </div>)}
+    </div>
+  </>
+}
+export const movesSheet = () => ui().openSheet(close => <MovesHistory close={close} />)
 
 /* ============================ import from another app ============================ */
 // "12 sets bring an RPE with them": the file rated its sets. The column is off by default, so
@@ -1273,7 +1302,7 @@ function usageMap(st) {
 }
 // The swap pickers' own scope (#473): exercises sharing the swapped exercise's target muscle.
 const SAME = '≈'
-function ExercisePicker({ onPick, title, close, like }) {
+function ExercisePicker({ onPick, title, close, like, initialEq }) {
   const st = useStore(s => s.S)
   const usage = usageMap(st)
   const [q, setQ] = useState('')
@@ -1287,7 +1316,7 @@ function ExercisePicker({ onPick, title, close, like }) {
     const prof = activeProfile(st)
     return sameMuscleFirst(allExercises(st), likeEx).some(e => !prof || exAvailable(st, e)) ? SAME : ''
   })                                        // '' = all, '★' = chosen, '☆' = favourites, '≈' = same muscle, else a body part
-  const [eq, setEq] = useState('')          // '' = any equipment
+  const [eq, setEq] = useState(initialEq || '')          // '' = any equipment
   const [showAll, setShowAll] = useState(false)
   const [shown, setShown] = useState(50)
   const [byMuscle, setByMuscle] = useState(false)
@@ -1391,8 +1420,84 @@ function ExercisePicker({ onPick, title, close, like }) {
 }
 // `title` names what the pick is for when it is not an add — the routine editor's Replace (#110).
 // `like` is the exercise a swap or a replace is away from: the picker then opens on the ones that
-// train the same muscle, same equipment first (#473).
-export const exercisePicker = (onPick, { title, like } = {}) => ui().openSheet(close => <ExercisePicker onPick={onPick} title={title} like={like} close={close} />)
+// train the same muscle, same equipment first (#473). `initialEq` presets the equipment filter
+// (PERSONAL-QR: a scanned machine narrows the list to its kit; unknown tags fall back to any).
+export const exercisePicker = (onPick, { title, like, initialEq } = {}) => ui().openSheet(close => <ExercisePicker onPick={onPick} title={title} like={like} initialEq={initialEq} close={close} />)
+
+// PERSONAL-QR: scan a gym machine, land on its sheet (imports at file top).
+function MachineScanSheet({ onMachine, close }) {
+  const [error, setError] = useState(null)
+  const [cam, setCam] = useState(!MOBILE)
+  const fileRef = useRef(null)
+  const found = code => {
+    if (!code) return
+    const machine = resolveQr(code.value)
+    if (!machine) {
+      setError(t('No gym machine matches that code. Pick it below — one tap teaches nothing, the list just opens.'))
+      return
+    }
+    close()
+    onMachine(machine)
+  }
+  const live = async () => {
+    setError(null)
+    try {
+      found(await scanCode())
+    } catch (e) {
+      setError(e?.message === 'permission-denied'
+        ? t('Camera access was denied. Allow it in Settings and try again.')
+        : t('Scanning is only available in the app. Use a photo or pick below.'))
+    }
+  }
+  const photo = async ev => {
+    const f = ev.target.files[0]
+    ev.target.value = ''
+    if (!f) return
+    setError(null)
+    try {
+      const code = await importCodeFromImage(f)
+      if (!code) setError(t('No code found in that photo.'))
+      else found(code)
+    } catch {
+      setError(t('Could not read that photo.'))
+    }
+  }
+  return <>
+    <h3>{t('Scan gym machine')}</h3>
+    {cam && !MOBILE
+      ? <CameraScan onFound={found} onCancel={close} />
+      : <>
+        <div className="row" style={{ gap: 8, marginBottom: 12 }}>
+          {MOBILE && <Button variant="primary" onClick={live}>{t('Scan')}</Button>}
+          <Button onClick={() => fileRef.current.click()}>{t('Photo')}</Button>
+        </div>
+        <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={photo} />
+      </>}
+    {error && <div className="muted small" style={{ marginBottom: 12 }}>{error}</div>}
+    <h4 className="muted small">{t('Or pick the machine')}</h4>
+    <div className="list" style={{ gap: 0 }}>{QR_MACHINES.machines.map(m =>
+      <Row key={m.machine} title={m.machine} accessory="chevron"
+        onClick={() => { close(); onMachine(m) }} />)}
+    </div>
+  </>
+}
+export const machineScanSheet = onMachine => ui().openSheet(close => <MachineScanSheet onMachine={onMachine} close={close} />)
+
+// The resolved machine: its program modes and console routines, then into
+// the exercise picker preset to its kit (or unfiltered where the catalogue
+// has no tag for it — treadmills, rowers). The picker's own commit adds the
+// exercise, so history and progression behave exactly as a manual pick.
+function MachineSheet({ machine, onChoose, close }) {
+  const modes = [...(machine.program_modes || []), ...(machine.console_routines || [])].filter((m, i, all) => m && all.indexOf(m) === i)
+  return <>
+    <h3>{machine.machine}</h3>
+    {modes.length
+      ? <div className="muted small" style={{ marginBottom: 12 }}>{t('Programs')}: {modes.join(' · ')}</div>
+      : <div className="muted small" style={{ marginBottom: 12 }}>{t('No program list recorded for this machine yet.')}</div>}
+    <Button variant="primary" onClick={() => { close(); onChoose(machine) }}>{t('Choose exercise')}</Button>
+  </>
+}
+export const machineSheet = (machine, onChoose) => ui().openSheet(close => <MachineSheet machine={machine} onChoose={onChoose} close={close} />)
 
 /** Start a safe swap for one exact active-workout occurrence. */
 export function swapActiveWorkoutExercise(index) {

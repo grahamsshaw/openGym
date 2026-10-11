@@ -14,6 +14,8 @@ page.
 | `merge_workout_csvs.py` | bridge workout CSVs | one combined import file |
 | `dryrun.mjs` / `showday.mjs` | a combined CSV | real-parser verification |
 | `mergetest.mjs` | samples + live state copy | idempotency proof (offline) |
+| `export_qr.py` | `qr_mapping.json` | `equipment-qr.json` for the app bundle |
+| `program_infer.py` + `test_infer.py` | session metrics + catalogs | program guesses in notes |
 | `autopush.mjs` | bridge CSVs + login | merge + push into openGym (dry-run default) |
 | `pull_all.bat` | everything above | scheduled nightly chain (see AUTO-PULL.md) |
 

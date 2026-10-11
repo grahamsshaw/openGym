@@ -4,7 +4,7 @@ import { useStore } from '../store/useStore.js'
 import { effectiveRoutines, effectiveRoutineIds, nextTrainingDay, streakWeeks, lastBW, setsDoneActive } from '../lib/history.js'
 import { fmtNum, fmtDate, todayISO, isoOf, weekStartOf, weekDayOffset, DAYS, DAYN } from '../lib/format.js'
 import { t, tn, dateLocale } from '../lib/i18n.js'
-import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, starterPlanSheet, bwDeltaColor, weighInsSheet } from '../sheets.jsx'
+import { bwSheet, goalSheet, dayOverrideSheet, calendarSheet, startFlow, starterPlanSheet, bwDeltaColor, weighInsSheet, movesSheet } from '../sheets.jsx'
 import LineChart from '../components/LineChart.jsx'
 import Icon from '../components/Icon.jsx'
 import QueueRow from '../components/QueueRow.jsx'
@@ -13,6 +13,7 @@ import { scheduleModeOf } from '../lib/rotation.js'
 import { useConnectionTrouble } from '../components/SyncBanner.jsx'
 import { Button } from '../components/ui.jsx'
 import { tappable } from '../lib/use-sheet-keyboard.js'
+import { movesByDay } from '../lib/moves.js'
 import { glyphOf } from '../lib/glyphs.js'
 import { dayNoteOf } from '../lib/day-notes.js'
 
@@ -222,6 +223,30 @@ export default function Home() {
         ? t('No weigh-ins yet. Log your weight to start the curve.')
         : t("No weigh-ins yet. Log your weight to start the curve (we also ask before every workout).")}</div>}
     </div>}
+
+    {/* PERSONAL-MOVES: daily MOVEs card. Technogym sessions report MOVEs;
+        nothing else does, so days without any read as "no data", never zero.
+        Same shape as the weight card: today big, last 30 days as a curve. */}
+    {(() => {
+      const days = movesByDay(S.workouts)
+      if (!days.length) return null
+      const today = days.find(d => d.d === todayISO())
+      const points = days.slice(-30).map(d => ({ t: new Date(d.d + 'T12:00:00').getTime(), y: d.moves, d: d.d }))
+      return <div className="card">
+        <div className="row between" style={{ marginBottom: 6 }}>
+          <h2 style={{ margin: 0 }}>{t('Moves')}</h2>
+          <span className="dim small">{t('From gym sessions')}</span>
+        </div>
+        <div className="row" style={{ gap: 8, alignItems: 'baseline' }}>
+          <div className="big">{today ? today.moves.toLocaleString() : '—'}</div>
+          <span className="dim small" style={{ marginInlineStart: 'auto' }}>{t('today')}</span>
+        </div>
+        <div className="chart" style={{ marginTop: 8 }}><LineChart points={points} h={130} unit="MOVEs" /></div>
+        <div className="row" style={{ justifyContent: 'flex-end', marginTop: 4 }}>
+          <Button size="sm" variant="ghost" trailingIcon="chevronRight" onClick={movesSheet}>{t('All moves')}</Button>
+        </div>
+      </div>
+    })()}
 
     <div className="card tappable" style={{ cursor: 'pointer' }} {...tappable(() => calendarSheet())}>
       <div className="row between">

@@ -44,6 +44,8 @@ import csv
 import json
 from pathlib import Path
 
+from program_infer import format_guess, infer_program, load_menus
+
 
 def _metrics(item: dict) -> dict:
     """Flatten a session's ``performedData.pr`` list to name → value."""
@@ -92,8 +94,13 @@ def _num(value) -> float | None:
         return None
 
 
-def session_note(metrics: dict, n_segments: int) -> str:
-    """Pack program-inference material into openGym's note column."""
+def session_note(metrics: dict, n_segments: int, menus: dict | None = None) -> str:
+    """Pack program-inference material into openGym's note column.
+
+    Raw material first (level, profile, HR, segments), then the v1 program
+    guess when the numbers support one (see program_infer). The guess
+    rides along visibly — "likely Hills (7/10)" — never silently.
+    """
     bits = []
     level = _num(metrics.get("Level"))
     if level is not None:
@@ -107,20 +114,35 @@ def session_note(metrics: dict, n_segments: int) -> str:
             bits.append(f"{key} {value:g}")
     if n_segments:
         bits.append(f"{n_segments} segments")
+    if menus:
+        guess = format_guess(infer_program(
+            machine="", level=level, elevation_m=_num(metrics.get("Elevation")),
+            duration_s=_num(metrics.get("Duration")),
+            avg_hr=_num(metrics.get("AvgHr")), max_hr=_num(metrics.get("MaxHr")),
+            menus=menus))
+        if guess:
+            bits.append(guess)
     bits.append("source technogym")
     return "; ".join(bits)
 
 
-def convert_export(indoor: list, biometrics: list) -> tuple[list[dict], list[dict]]:
+def convert_export(indoor: list, biometrics: list, menus: dict | None = None) -> tuple[list[dict], list[dict]]:
     """Convert parsed export data to openGym-shaped rows.
 
     Args:
         indoor: Sessions from the ``indooractivities`` file.
         biometrics: Entries from the ``biometrics`` file.
+        menus: Program menus for inference (see program_infer); loaded
+            from the catalog files when omitted.
 
     Returns:
         ``(workout_rows, weighin_rows)`` with openGym's accepted headers.
     """
+    if menus is None:
+        try:
+            menus = load_menus()
+        except (ValueError, OSError):
+            menus = {}
     workouts: list[dict] = []
     for item in indoor:
         metrics = _metrics(item)
@@ -138,7 +160,7 @@ def convert_export(indoor: list, biometrics: list) -> tuple[list[dict], list[dic
             "start time": "",
             "duration seconds": int(duration_s),
             "distance km": round(dist_m / 1000, 3) if dist_m else "",
-            "note": session_note(metrics, len(_segments(item))),
+            "note": session_note(metrics, len(_segments(item)), menus=menus),
         })
 
     weighins: list[dict] = []

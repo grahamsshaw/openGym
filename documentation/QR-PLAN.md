@@ -71,3 +71,15 @@ Resolving a machine also surfaces its `program_modes` (from the catalog),
 so logging "20 min treadmill" can attach the mode (Weight Loss / HIIT /
 Hills…) at record time — the field the later program-inference work
 (`TECHNOGYM-PROGRAMS.md`) treats as ground truth.
+
+## As built (v1)
+
+- `bridge/export_qr.py` → `frontend/src/lib/equipment-qr.json` (5
+  identified machines; model-code dedupe prefers the fuller program list).
+- `lib/qr-resolve.js`: offline decode (model code first, recorded serials
+  second) + tests on same-shape synthetic fixtures.
+- `exercisePicker(..., { initialEq })`: scanner presets the kit filter;
+  unknown tags fall back to any (the picker's own dead-end rule).
+- Workout ⋯ Add → **Scan machine** → machine sheet (modes, routines) →
+  Choose exercise. Same add commit as the open picker, so history and
+  progression behave identically.

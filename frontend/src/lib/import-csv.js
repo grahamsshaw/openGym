@@ -646,13 +646,20 @@ export function parseWorkoutCSV(text, { unit = 'kg', customEx = [] } = {}) {
   const converted = (!!fileUnit && fileUnit !== unit) || mixedUnits
 
   const dates = [...byDate.keys()].sort()
+  // PERSONAL-MOVES: per-entry Technogym MOVEs as a number, so Home can sum
+  // them without parsing text later. First "Move N"/"N MOVEs" in the note.
+  const movesOf = text => {
+    const m = /move\s+(\d+(?:\.\d+)?)|(\d+(?:\.\d+)?)\s*moves?/i.exec(text || '')
+    return m ? Math.round(Number(m[1] ?? m[2])) : null
+  }
   const workouts = dates.map(d => {
     const day = byDate.get(d)
     const entries = [...day.ex.entries()].map(([id, ss]) => {
       const conv2 = ss.map(({ u, ...s }) => (s.w !== undefined ? { ...s, w: convRow({ ...s, u }) } : s))
       const mx = Math.max(0, ...conv2.filter(s => !isWarmupRow(s)).map(s => s.w || 0))
       const note = (day.notes.get(id) || []).join(' · ').slice(0, 280)
-      return { id, sets: conv2, topW: mx || null, ...(day.sg.has(id) ? { sg: day.sg.get(id) } : {}), ...(note ? { note } : {}) }
+      const moves = movesOf(note)
+      return { id, sets: conv2, topW: mx || null, ...(day.sg.has(id) ? { sg: day.sg.get(id) } : {}), ...(note ? { note } : {}), ...(moves != null ? { moves } : {}) }
     })
     // A superset is exercises next to each other; one left without a neighbour sharing its
     // tag is not a superset (the same rule history.js's cleanupSg applies).

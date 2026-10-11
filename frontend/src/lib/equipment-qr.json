@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "machines": [
+    {
+      "machine": "Bike Excite Live",
+      "model_code": "1121",
+      "serials": [
+        "DFCG4A025000328"
+      ],
+      "eq": "stationary bike",
+      "program_modes": [
+        "Quick Start",
+        "Goals (Time, Distance, Calories)",
+        "Profiles",
+        "Constant Heart Rate",
+        "Fitness Test",
+        "Routines",
+        "Sessions",
+        "Outdoor"
+      ],
+      "console_routines": []
+    },
+    {
+      "machine": "Climb Excite Live",
+      "model_code": "1115",
+      "serials": [
+        "DFEG3A025001326",
+        "DFEG3A025001324"
+      ],
+      "eq": "stepmill machine",
+      "program_modes": [
+        "Quick Start",
+        "Goals (Time, Distance, Calories)",
+        "Profiles",
+        "Constant Heart Rate",
+        "Fitness Test",
+        "Routines (incl. HIIT)",
+        "Sessions",
+        "Outdoor"
+      ],
+      "console_routines": [
+        "Agility booster",
+        "Lose weight routine",
+        "Glutes routine",
+        "Total body routine"
+      ]
+    },
+    {
+      "machine": "Run Excite Live",
+      "model_code": "1097",
+      "serials": [
+        "DFKGAA025004315",
+        "DFKGAA025004310"
+      ],
+      "eq": null,
+      "program_modes": [
+        "Quick Start",
+        "Goals (Time, Distance, Calories)",
+        "Profiles",
+        "Constant Heart Rate",
+        "Fitness Test",
+        "Routines",
+        "Sessions",
+        "Outdoor"
+      ],
+      "console_routines": [
+        "Agility booster",
+        "Legs strengthening",
+        "Lose weight routine",
+        "Stamina routine"
+      ]
+    },
+    {
+      "machine": "Synchro Excite Live",
+      "model_code": "1103",
+      "serials": [
+        "DF5G4A025000180",
+        "DF5G4A025000184"
+      ],
+      "eq": "elliptical machine",
+      "program_modes": [
+        "Quick Start",
+        "Goals (Time, Distance, Calories)",
+        "Profiles",
+        "Constant Heart Rate",
+        "Fitness Test",
+        "Routines",
+        "Sessions",
+        "Outdoor"
+      ],
+      "console_routines": [
+        "Lose weight",
+        "Stamina routine",
+        "Glutes routine",
+        "Total body routine"
+      ]
+    },
+    {
+      "machine": "Skill Rower (Technogym)",
+      "model_code": null,
+      "serials": [
+        "RWX25003798XAB",
+        "RWX25003549XAB"
+      ],
+      "eq": null,
+      "program_modes": [],
+      "console_routines": []
+    }
+  ]
+}
