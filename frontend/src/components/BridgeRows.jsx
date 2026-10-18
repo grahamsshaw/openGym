@@ -118,7 +118,10 @@ export function BridgeDataSection() {
       const hc = await readPlugin()
       beacon('read-plugin', { havePlugin: !!hc })
       if (!hc) {
-        const msg = t('This build cannot read Health Connect.')
+        // Either Health Connect is not reachable, or the lookup gave up waiting.
+        // Both end here, so the wording has to cover both rather than blame the
+        // build for something that may be the phone.
+        const msg = t('Could not reach Health Connect. Check it is installed and opens, then try again.')
         setReadNote(msg)
         toast(msg)
         return

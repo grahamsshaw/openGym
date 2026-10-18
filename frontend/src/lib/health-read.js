@@ -7,9 +7,18 @@
 // side is HealthConnectPlugin.read. Day attribution: a session belongs to
 // the day it starts; a night's sleep to the day its first minute falls in;
 // a record appearing in two adjacent day windows is kept once (by start).
-import { MOBILE } from './mobile.js'
+// isAndroid is imported statically, the way lib/health-sync.js does it for the
+// write path. This file used to reach it through `await import('./mobile.js')`
+// at call time, and that extra dynamic import never settled inside the app's
+// WebView: the tap arrived, the function never returned, and the busy flag it
+// left behind locked every later tap out. The write path proves the static form
+// works, so there is no reason to differ.
+import { MOBILE, isAndroid } from './mobile.js'
 
 export const READ_DAYS_DEFAULT = 30
+
+/** How long any single native round-trip may take before it is written off. */
+export const PLUGIN_TIMEOUT_MS = 15000
 
 /** Display names for the typeName strings HealthConnectPlugin.read returns. */
 export const TYPE_LABELS = {
@@ -26,16 +35,29 @@ export const TYPE_LABELS = {
 export const OWN_PACKAGES = ['ch.duartesantos.opengym']
 
 /** The native plugin, or null on web/iOS/official builds without `read`. */
-export async function readPlugin() {
+export async function readPlugin({ timeoutMs = PLUGIN_TIMEOUT_MS } = {}) {
   if (!MOBILE) return null
+  let timer
   try {
-    const mobile = await import('./mobile.js')
-    if (!(await mobile.isAndroid())) return null
-    const { registerPlugin } = await import('@capacitor/core')
-    const HC = registerPlugin('HealthConnect')
-    return typeof HC?.read === 'function' ? HC : null
+    // Bounded on purpose. Whatever this waits for has stalled once already, and
+    // a hang that never settles is worse than any failure: it takes the caller's
+    // busy flag down with it and every other button stops answering.
+    const found = await Promise.race([
+      (async () => {
+        if (!(await isAndroid())) return null
+        const { registerPlugin } = await import('@capacitor/core')
+        const HC = registerPlugin('HealthConnect')
+        return typeof HC?.read === 'function' ? HC : null
+      })(),
+      new Promise(resolve => {
+        timer = setTimeout(() => resolve(null), timeoutMs)
+      }),
+    ])
+    return found
   } catch {
     return null
+  } finally {
+    clearTimeout(timer)
   }
 }
 

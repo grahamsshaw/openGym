@@ -1,6 +1,6 @@
 // PERSONAL-READ: readPhoneHealth + toHealthExportCsv against a fake plugin.
 import { describe, expect, it, vi } from 'vitest'
-import { readPhoneHealth, toHealthExportCsv, ensureReadPermissions } from './health-read.js'
+import { readPhoneHealth, toHealthExportCsv, ensureReadPermissions, readPlugin } from './health-read.js'
 
 const noon = (y, m, d, h = 12, min = 0) => new Date(y, m - 1, d, h, min).getTime()
 const NOW = noon(2026, 10, 8)
@@ -46,6 +46,33 @@ describe('readPhoneHealth', () => {
     const seen = []
     await readPhoneHealth({ days: 3, now: NOW, hc, onProgress: (d, n) => seen.push([d, n]) })
     expect(seen).toEqual([[1, 3], [2, 3], [3, 3]])
+  })
+})
+
+// The one that wedged the whole screen: this lookup used to reach isAndroid
+// through `await import('./mobile.js')`, which never settled in the app's
+// WebView. The tap arrived, nothing came back, and the busy flag it left behind
+// locked every later tap out - so it must always settle, one way or another.
+describe('readPlugin', () => {
+  it('gives up rather than hanging when the lookup never settles', async () => {
+    vi.resetModules()
+    vi.doMock('./mobile.js', () => ({
+      MOBILE: true,
+      isAndroid: () => new Promise(() => {}), // never resolves
+    }))
+    const mod = await import('./health-read.js?stuck')
+    await expect(mod.readPlugin({ timeoutMs: 20 })).resolves.toBeNull()
+    vi.doUnmock('./mobile.js')
+    vi.resetModules()
+  })
+
+  it('reports no plugin on a non-mobile build without waiting', async () => {
+    vi.resetModules()
+    vi.doMock('./mobile.js', () => ({ MOBILE: false, isAndroid: async () => false }))
+    const mod = await import('./health-read.js?web')
+    await expect(mod.readPlugin()).resolves.toBeNull()
+    vi.doUnmock('./mobile.js')
+    vi.resetModules()
   })
 })
 
