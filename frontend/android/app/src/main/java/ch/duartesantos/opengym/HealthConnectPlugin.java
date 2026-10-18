@@ -206,28 +206,14 @@ public class HealthConnectPlugin extends Plugin {
             call.reject("Health Connect is not available", "unavailable");
             return;
         }
-        // granted() talks to Health Connect over IPC, so it runs on the worker
-        // with everything else; startActivityForResult posts itself to the UI
-        // thread, so calling it from here is fine.
-        worker.execute(() -> {
-            try {
-                // Already held: answer straight away. Opening the sheet anyway
-                // would flash an empty one over the app on every tap. If the
-                // check cannot be made at all, fall through and ask — asking is
-                // always the safe answer.
-                if (granted().containsAll(readPermissions())) {
-                    JSObject ok = new JSObject();
-                    ok.put("granted", true);
-                    call.resolve(ok);
-                    return;
-                }
-            } catch (InterruptedException ignored) {
-                // fall through to the sheet
-            }
-            ActivityResultContract<Set<String>, Set<String>> contract = PermissionController.createRequestPermissionResultContract(PROVIDER);
-            Intent intent = contract.createIntent(getContext(), readPermissions());
-            startActivityForResult(call, intent, "readPermissionsResult");
-        });
+        // Deliberately the same shape as requestPermissions() above: build the
+        // intent and start it from here. An earlier version checked granted()
+        // first, which meant calling startActivityForResult off the calling
+        // thread, and the sheet then failed to open at all. The empty sheet on a
+        // second tap is a fair price for the sheet opening on the first one.
+        ActivityResultContract<Set<String>, Set<String>> contract = PermissionController.createRequestPermissionResultContract(PROVIDER);
+        Intent intent = contract.createIntent(getContext(), readPermissions());
+        startActivityForResult(call, intent, "readPermissionsResult");
     }
 
     @ActivityCallback

@@ -29,6 +29,7 @@ export function BridgeDataSection() {
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
   const [progress, setProgress] = useState(null)
+  const [readNote, setReadNote] = useState(null)
   const [droid, setDroid] = useState(false)
   const upRef = useRef(null)
   useEffect(() => { if (MOBILE) isAndroid().then(setDroid).catch(() => {}) }, [])
@@ -77,18 +78,34 @@ export function BridgeDataSection() {
   //
   // The read set is asked for here rather than assumed: `read` refuses without
   // it, so a button that only reported the refusal could never succeed.
+  //
+  // Every outcome is also written into the row's own subtitle, not only raised
+  // as a toast. A toast that flashes off-screen is indistinguishable from a
+  // button that did nothing, which is exactly what was being reported.
   const readPhone = async () => {
     if (busy) return
     setBusy(true)
     setProgress(null)
+    setReadNote(null)
     try {
       const hc = await readPlugin()
       if (!hc) {
-        toast(t('Needs the personal app build with Health Connect read.'))
+        const note = t('This build cannot read Health Connect.')
+        setReadNote(note)
+        toast(note)
         return
       }
-      if (!(await ensureReadPermissions(hc))) {
-        toast(t('Allow reading in Health Connect, then try again.'))
+      const permit = await ensureReadPermissions(hc)
+      if (!permit.ok) {
+        const note = permit.why === 'unavailable'
+          ? t('Health Connect is not available on this phone.')
+          : permit.why === 'no-plugin'
+            ? t('This build cannot ask for Health Connect access.')
+            : permit.why === 'denied'
+              ? t('Health Connect access was not granted.')
+              : t('Health Connect request failed: {0}', permit.message || t('unknown error'))
+        setReadNote(note)
+        toast(note)
         return
       }
       const read = await readPhoneHealth({
@@ -104,17 +121,17 @@ export function BridgeDataSection() {
       for (const [filename, content] of files) {
         await api('/api/bridge/inbox', { method: 'POST', body: JSON.stringify({ filename, content }) })
       }
-      toast(files.length
-        ? t('{0} sessions from the last {1} days, on the server. Now pull to import.',
-          read.sessions.length, READ_DAYS_DEFAULT)
-        : t('Nothing new on this phone.'))
+      const days = Object.keys(read.days || {}).length
+      const note = files.length
+        ? t('Read {0} session(s) over {1} days. On the server — pull to import.', read.sessions.length, days)
+        : t('Nothing new on this phone.')
+      setReadNote(note)
+      toast(note)
       await refresh()
     } catch (e) {
-      toast(e?.code === 'permission' || /permission/i.test(e?.message || '')
-        ? t('Allow reading in Health Connect, then try again.')
-        // The old text swallowed the reason entirely, so a real failure was
-        // indistinguishable from a button that did nothing.
-        : t('Could not read phone health data: {0}', e?.message || t('unknown error')))
+      const note = t('Could not read phone health data: {0}', e?.message || t('unknown error'))
+      setReadNote(note)
+      toast(note)
     } finally {
       setBusy(false)
       setProgress(null)
@@ -132,7 +149,10 @@ export function BridgeDataSection() {
           // button looks dead for the whole of it, which is what "nothing
           // happened" meant when the permission prompt had not even been asked.
           ? t('Reading day {0} of {1}…', progress.done, progress.total)
-          : t('Last {0} days from Health Connect, straight to the server.', READ_DAYS_DEFAULT)}
+          // The last outcome stays on the row until the next tap, so a result
+          // that arrives while the user is looking elsewhere is still there to
+          // be read.
+          : readNote || t('Last {0} days from Health Connect, straight to the server.', READ_DAYS_DEFAULT)}
         accessory={progress ? 'none' : 'chevron'}
         onClick={progress ? undefined : readPhone} />}
       <Row icon="share" iconTint="var(--teal)" title={t('Send phone files to server')}

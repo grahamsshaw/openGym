@@ -50,31 +50,50 @@ describe('readPhoneHealth', () => {
 })
 
 // The native `read` rejects without the read set held, so the app has to ask
-// for it before reading. Asking nothing and reporting the refusal back meant
-// the button could only ever fail.
+// for it before reading. Every failure must come back with a distinct reason:
+// "Health Connect is missing", "you said no" and "this build cannot ask" are
+// different problems, and reporting all three as a permission problem is what
+// made the button unreadable from the outside.
 describe('ensureReadPermissions', () => {
   it('reports granted when Health Connect says so', async () => {
     const plugin = { requestReadPermissions: vi.fn(async () => ({ granted: true })) }
-    await expect(ensureReadPermissions(plugin)).resolves.toBe(true)
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: true })
     expect(plugin.requestReadPermissions).toHaveBeenCalledTimes(1)
   })
 
-  it('reports not granted when the sheet is dismissed', async () => {
+  it('reports denied when the sheet is dismissed', async () => {
     const plugin = { requestReadPermissions: vi.fn(async () => ({ granted: false })) }
-    await expect(ensureReadPermissions(plugin)).resolves.toBe(false)
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: false, why: 'denied' })
   })
 
-  // Health Connect missing, or the sheet failing to open, must read as a plain
-  // refusal rather than an exception that skips the friendly message.
-  it('reports not granted when the request throws', async () => {
-    const plugin = { requestReadPermissions: vi.fn(async () => { throw new Error('no provider') }) }
-    await expect(ensureReadPermissions(plugin)).resolves.toBe(false)
+  // Health Connect missing, or its provider needing an update, is not something
+  // the user can grant - so it must not be dressed up as a permission problem.
+  it('reports unavailable distinctly from denied', async () => {
+    const plugin = {
+      requestReadPermissions: vi.fn(async () => {
+        throw Object.assign(new Error('Health Connect is not available'), { code: 'unavailable' })
+      }),
+    }
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: false, why: 'unavailable' })
+  })
+
+  it('recognises unavailable from the message when there is no code', async () => {
+    const plugin = { requestReadPermissions: vi.fn(async () => { throw new Error('Health Connect is not available') }) }
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: false, why: 'unavailable' })
+  })
+
+  // Anything else keeps its own wording, which is the only clue to what broke.
+  it('carries the real message through on any other failure', async () => {
+    const plugin = { requestReadPermissions: vi.fn(async () => { throw new Error('sheet exploded') }) }
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({
+      ok: false, why: 'failed', message: 'sheet exploded',
+    })
   })
 
   // A plugin predating the read-permission method must not blow up either.
-  it('reports not granted when the method is missing', async () => {
-    await expect(ensureReadPermissions({ read: vi.fn() })).resolves.toBe(false)
-    await expect(ensureReadPermissions(null)).resolves.toBe(false)
+  it('reports no-plugin when the method is missing', async () => {
+    await expect(ensureReadPermissions({ read: vi.fn() })).resolves.toEqual({ ok: false, why: 'no-plugin' })
+    await expect(ensureReadPermissions(null)).resolves.toEqual({ ok: false, why: 'no-plugin' })
   })
 })
 

@@ -40,24 +40,31 @@ export async function readPlugin() {
 }
 
 /**
- * Ask for the read permissions, then report whether they are all held.
+ * Ask for the read permissions.
  *
- * The native `read` refuses outright without them, so this has to happen
- * before it — asking for nothing and reporting a permission error tells the
- * user to go somewhere the app cannot send them.
+ * The native `read` refuses outright without them, so this has to happen before
+ * it. Every failure used to collapse to a plain `false` and the same message,
+ * which made "Health Connect is not installed", "you said no" and "this build
+ * cannot ask" indistinguishable from the outside. The reason is what tells us
+ * which one it was, so it is returned rather than thrown away.
  *
- * @returns {Promise<boolean>} true when the read set is granted
+ * @returns {Promise<{ok: boolean, why?: string, message?: string}>}
+ *   `why` is one of: 'no-plugin', 'unavailable', 'denied', 'failed'.
  */
 export async function ensureReadPermissions(hc) {
-  if (!hc) return false
+  if (!hc) return { ok: false, why: 'no-plugin' }
   try {
-    if (typeof hc.requestReadPermissions !== 'function') return false
+    if (typeof hc.requestReadPermissions !== 'function') return { ok: false, why: 'no-plugin' }
     const r = await hc.requestReadPermissions()
-    return !!r?.granted
+    return r?.granted ? { ok: true } : { ok: false, why: 'denied' }
   } catch (e) {
-    // A refusal is an answer, not a crash: Health Connect may not be installed,
-    // or the user dismissed the sheet.
-    return false
+    const code = e?.code || ''
+    const text = e?.message || ''
+    // Health Connect not installed, or its provider needs updating. Nothing the
+    // user can grant, so it must not be reported as a permission problem.
+    if (code === 'unavailable' || /not available/i.test(text)) return { ok: false, why: 'unavailable' }
+    if (code === 'permission') return { ok: false, why: 'denied' }
+    return { ok: false, why: 'failed', message: text }
   }
 }
 
