@@ -7,7 +7,25 @@ Technogym/Wii bridge, and a home network address instead of a domain.
 
 ## What is where
 
-Two compose stacks, deliberately separate so an upstream merge never disturbs
+## Packing the move
+
+Everything openGym keeps out of git — the account, the history, the session
+secret, the bridge's credentials and source data — goes in one small archive:
+
+```bash
+py scripts/make-migration-bundle.py --out ~/opengym-migration.tar.gz \
+    --rp-id gym.grahamsshaw.mooo.com \
+    --origin https://gym.grahamsshaw.mooo.com \
+    --port 6080
+```
+
+The address is an **argument on purpose**. Copying `.env` off the running
+machine ships its `RP_ID=localhost` and `ORIGIN=http://localhost:8080`, and the
+new server then answers to itself and logs you out on every restart. That is
+the one mistake this script exists to stop, so it rewrites those three keys
+whatever the source says.
+
+## Two compose stacks, deliberately separate so an upstream merge never disturbs
 the bridge:
 
 | Stack | File | Serves |
@@ -29,21 +47,52 @@ the runner cannot reach openGym, every pull fails with a connection error, and
 the reason is not obvious from the logs. Keep that mapping if the file is ever
 regenerated.
 
-## The two settings that must change
+## The settings that must change
 
 In `.env`:
 
 ```
-RP_ID=gym.grahamsshaw.mooo.com                # the DNS name only: no https:// , no path
-ORIGIN=https://gym.grahamsshaw.mooo.com       # what you actually type in the browser
-WEB_PORT=6080                                 # 8080 was already taken on the Mini
+RP_ID=gym.grahamsshaw.mooo.com          # the DNS name only: no https:// , no path
+ORIGIN=http://192.168.0.94:6080         # the address you ACTUALLY type in the browser
+WEB_PORT=6080                           # 8080 was already taken on the Mini
 ```
 
-`RP_ID` is the WebAuthn relying-party id — a bare hostname. `ORIGIN` drives the
-session cookie's `Secure` flag and the CSRF fallback. Neither breaks the
-browser UI on its own (a browser sends `Sec-Fetch-Site: same-origin`, which the
-API accepts before it ever compares origins), but getting them right is what
-keeps you signed in across restarts.
+**`ORIGIN` must match the address in the browser bar, not the address you
+intend to use eventually.** This is the setting that produces the most
+confusing failure, because nothing is wrong until you try to sign in:
+
+```
+cross-origin request refused
+```
+
+The API guards every state-changing POST (`api/server.js`). It lets one
+through by `Sec-Fetch-Site: same-origin`, which most browsers send — but not
+all, and not through every proxy. Failing that it compares the request's
+`Origin` against `ORIGIN`. So while browsing `http://192.168.0.94:6080`, an
+`ORIGIN` of `https://gym.grahamsshaw.mooo.com` refuses the sign-in. Measured,
+with the LAN address typed in the browser:
+
+| `ORIGIN` is | browser sends `Sec-Fetch-Site` | result |
+| --- | --- | --- |
+| `https://gym...` | no | **403 cross-origin request refused** |
+| `https://gym...` | `same-origin` | 200 |
+| `http://192.168.0.94:6080` | no | 200 |
+
+So there are two legitimate settings, and they swap when you move:
+
+- **On the home network now** — `ORIGIN=http://192.168.0.94:6080`
+- **Once DNS, port-forward and the NPM certificate are all live**, when you
+  browse `https://gym.grahamsshaw.mooo.com` — set
+  `ORIGIN=https://gym.grahamsshaw.mooo.com` and rebuild with
+  `docker compose up -d`. Until then, requests from the https name are refused.
+
+Changing `.env` needs `docker compose up -d`, not `restart`: the value is
+baked in when the container is created.
+
+`RP_ID` only matters for passkeys, which need a real https domain anyway — an
+IP address is not a valid relying-party id. Passkeys made while the server was
+on `localhost` cannot work on any other address; re-register one once the
+domain is live.
 
 **The app is used at the gym, on the gym's wifi.** So the server has to be
 reachable from outside the home network, which means all three of:
