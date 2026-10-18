@@ -2245,4 +2245,6 @@ export default {
   'Your sports watch, calling you back.': 'Ваши спортивные часы зовут вас обратно.',
   'Coach wants you back on the bar.': 'Тренер ждёт вас обратно у штанги.',
   'Gentle, for headphones or a quiet room.': 'Тихий, для наушников или спокойного зала.',
+  '{0} sessions updated': { one: 'Обновлена {0} сессия', few: 'Обновлено {0} сессии', many: 'Обновлено {0} сессий', other: 'Обновлено {0} сессии' },
+  '{0} sessions to update': { one: '{0} сессия для обновления', few: '{0} сессии для обновления', many: '{0} сессий для обновления', other: '{0} сессии для обновления' },
 }

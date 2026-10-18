@@ -3,6 +3,8 @@ import { scanCode, importCodeFromImage } from './lib/scan.js' // PERSONAL-QR
 import CameraScan from './components/CameraScan.jsx' // PERSONAL-QR
 import { resolveQr } from './lib/qr-resolve.js' // PERSONAL-QR
 import QR_MACHINES from './lib/equipment-qr.json' // PERSONAL-QR (generated; see bridge/export_qr.py)
+import { parseTcx, describeTcx } from './lib/tcx.js' // PERSONAL-TCX
+import { candidatesFor, enrichmentNote } from './lib/tcx-match.js' // PERSONAL-TCX
 import { useStore } from './store/useStore.js'
 import { useUI } from './store/useUI.js'
 import { EXDB, EXIDX, BODYPARTS, isCardio, isBodyweightEq, allExercises, equipmentOf, smOf, searchExercises, similarExercises, exOr, isAssisted, betterWeight, beatsWeight, isCustomEx } from './lib/exercises.js'
@@ -535,6 +537,183 @@ export function importFromApp(file, onDone) {
   }
   rd.onerror = () => toast(t('Could not read that file'))
   rd.readAsText(file)
+}
+
+/* ============================ TCX import ============================ */
+// PERSONAL-TCX: fold per-second .tcx exports into the sessions the console
+// already recorded.
+//
+// This is an *edit*, not an import: the gym's own export already created the
+// session, and a TCX never carries an identity of its own. So each file is
+// matched to a stored entry first, and only the facts the file adds are
+// written — a heart rate the console never reported, the peak of a power
+// curve, the shape of the effort. Nothing is created, nothing is overwritten,
+// and a file that fits nothing is left alone rather than guessed at.
+
+const TCX_ERRORS = {
+  'not-tcx': t('That is not a .tcx file'),
+  unreadable: t('That file could not be read'),
+  'no-activity': t('That file has no activity in it'),
+  'no-trackpoints': t('That file has no readings in it'),
+  'no-times': t('That file has no timestamps in it'),
+}
+
+const readAsText = file => new Promise((resolve, reject) => {
+  const rd = new FileReader()
+  rd.onload = () => resolve(String(rd.result))
+  rd.onerror = () => reject(new Error('read-failed'))
+  rd.readAsText(file)
+})
+
+export function importFromTcx(fileList) {
+  const files = [...(fileList || [])].filter(f => /\.tcx$/i.test(f.name))
+  if (!files.length) { toast(t('Choose one or more .tcx files')); return }
+  Promise.all(files.map(async file => {
+    try { return { name: file.name, text: await readAsText(file) } }
+    catch { return { name: file.name, failed: true } }
+  })).then(loaded => {
+    const good = []
+    const bad = []
+    for (const item of loaded) {
+      if (item.failed) { bad.push({ name: item.name, error: 'unreadable' }); continue }
+      const summary = parseTcx(item.text)
+      if (summary.error) bad.push({ name: item.name, error: summary.error })
+      else good.push({ name: item.name, summary })
+    }
+    if (!good.length) {
+      toast(bad.length === 1
+        ? t('Could not read that file')
+        : t('Could not read any of those files'))
+      return
+    }
+    ui().openSheet(close => <TcxImportSheet files={good} bad={bad} close={close} />)
+  })
+}
+
+function TcxImportSheet({ files, bad, close }) {
+  const st = useStore(s => s.S)
+  // Per file: which candidate is chosen. -1 means skip.
+  const [chosen, setChosen] = useState(() => {
+    const initial = {}
+    for (const file of files) {
+      const candidates = candidatesFor(file.summary, st.workouts)
+      // Only offer a default the matcher is actually sure about; otherwise the
+      // user has to say which session it was.
+      initial[file.name] = candidates[0]?.confidence === 'confident' ? 0 : -1
+    }
+    return initial
+  })
+
+  const rows = files.map(file => {
+    const candidates = candidatesFor(file.summary, st.workouts)
+    const pick = chosen[file.name]
+    const candidate = pick >= 0 ? candidates[pick] : null
+    const entry = candidate
+      ? st.workouts[candidate.workoutIndex]?.entries[candidate.entryIndex]
+      : null
+    const note = entry ? enrichmentNote(file.summary, entry.note, NOTE_MAX) : null
+    return { file, candidates, candidate, entry, note }
+  })
+
+  const ready = rows.filter(r => r.candidate && r.note)
+
+  const apply = () => {
+    let changed = 0
+    update(s => {
+      for (const row of ready) {
+        const entry = s.workouts[row.candidate.workoutIndex]?.entries[row.candidate.entryIndex]
+        if (!entry) continue
+        const note = enrichmentNote(row.file.summary, entry.note, NOTE_MAX)
+        if (!note) continue
+        entry.note = note
+        changed++
+      }
+    })
+    close()
+    toast(tn('{0} session updated', '{0} sessions updated', changed))
+  }
+
+  const select = (name, index) => setChosen(prev => ({ ...prev, [name]: index }))
+
+  return <>
+    <h3>{t('Add TCX details')}</h3>
+    <div className="muted small" style={{ marginBottom: 12 }}>
+      {t('These files only add detail to a session your gym already recorded. Nothing is created or replaced.')}
+    </div>
+
+    {rows.map(({ file, candidates, candidate, note }) => {
+      const day = st.workouts.find(w => w.d === file.summary.date)
+      return <div key={file.name} style={{ marginBottom: 18 }}>
+        <div style={{ fontWeight: 600, marginBottom: 2, wordBreak: 'break-word' }}>{file.name}</div>
+        <div className="muted small" style={{ marginBottom: 8 }}>
+          {fmtDate(file.summary.date, true)} · {describeTcx(file.summary)}
+        </div>
+
+        {!day && <div className="small" style={{ color: 'var(--yellow)' }}>
+          {t('No session recorded on that day.')}
+        </div>}
+
+        {candidates.length === 0 && day && <div className="small dim">
+          {t('Nothing on that day looks like this file.')}
+        </div>}
+
+        {candidates.length > 0 && <>
+          <div className="list" style={{ gap: 0, marginBottom: 8 }}>
+            {candidates.slice(0, 5).map((c, i) => {
+              const entry = st.workouts[c.workoutIndex]?.entries[c.entryIndex]
+              const label = entryNameText(st, entry)
+              const selected = chosen[file.name] === i
+              return <Row key={`${c.workoutIndex}-${c.entryIndex}`}
+                title={label}
+                subtitle={c.why}
+                accessory={selected ? 'check' : undefined}
+                onClick={() => select(file.name, selected ? -1 : i)} />
+            })}
+          </div>
+          {candidate?.ambiguous && <div className="small" style={{ color: 'var(--yellow)', marginBottom: 6 }}>
+            {t('More than one session fits this file — check which is right.')}
+          </div>}
+          {candidate && !note && <div className="small dim" style={{ marginBottom: 6 }}>
+            {t('This session already records everything the file adds.')}
+          </div>}
+          {note && <div className="small dim" style={{ marginBottom: 6, wordBreak: 'break-word' }}>
+            {t('Adds: {0}', note.slice(note.indexOf('TCX:')))}
+          </div>}
+        </>}
+      </div>
+    })}
+
+    {bad.length > 0 && <>
+      <h4 className="sec">{t('Could not read')}</h4>
+      <div className="small dim" style={{ marginBottom: 12 }}>
+        {bad.map(b => `${b.name} — ${TCX_ERRORS[b.error] || t('not recognised')}`).join(' · ')}
+      </div>
+    </>}
+
+    <Button variant="primary" onClick={apply} disabled={!ready.length}>
+      {ready.length
+        // Not "Update {0} sessions": that plural key already exists meaning
+        // plain "{0} sessions", and reusing it would overwrite the plain form
+        // every other caller expects.
+        ? tn('{0} session to update', '{0} sessions to update', ready.length)
+        : t('Nothing to add')}
+    </Button>
+    <div style={{ height: 8 }} />
+    <Button variant="ghost" className="dim" onClick={close}>{t('Cancel')}</Button>
+  </>
+}
+
+/** How an entry is named in the match list. */
+function entryNameText(st, entry) {
+  if (!entry) return t('Unknown session')
+  // A Technogym row names its machine in the note ("Run Excite Live; avg 7.2
+  // km/h; ..."), and that is what the user recognises far better than an
+  // imported id. Fall back to the catalogue name when there is no note.
+  const machine = String(entry.note || '').split(';')[0].trim()
+  if (machine && !/^source\b/i.test(machine)) return machine
+  const ex = EXIDX[entry.nid || entry.id]
+  if (ex) return exerciseNameText(ex)
+  return t('Exercise')
 }
 
 /* ============================ import from Hevy API ============================ */

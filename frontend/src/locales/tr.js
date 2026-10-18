@@ -2241,4 +2241,6 @@ export default {
   'Your sports watch, calling you back.': 'Spor saatin seni geri çağırıyor.',
   'Coach wants you back on the bar.': 'Koç seni bara geri bekliyor.',
   'Gentle, for headphones or a quiet room.': 'Sakin, kulaklık ya da sessiz bir oda için.',
+  '{0} sessions updated': '{0} seans güncellendi',
+  '{0} sessions to update': 'Güncellenecek {0} seans',
 }

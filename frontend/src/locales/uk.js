@@ -2238,4 +2238,6 @@ export default {
   'Your sports watch, calling you back.': 'Ваш спортивний годинник кличе вас назад.',
   'Coach wants you back on the bar.': 'Тренер чекає вас назад біля штанги.',
   'Gentle, for headphones or a quiet room.': 'Тихий, для навушників або спокійної кімнати.',
+  '{0} sessions updated': { one: 'Оновлено {0} сесію', few: 'Оновлено {0} сесії', many: 'Оновлено {0} сесій', other: 'Оновлено {0} сесії' },
+  '{0} sessions to update': { one: '{0} сесія для оновлення', few: '{0} сесії для оновлення', many: '{0} сесій для оновлення', other: '{0} сесії для оновлення' },
 }

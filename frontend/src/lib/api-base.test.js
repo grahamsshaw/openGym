@@ -221,7 +221,14 @@ describe('the redirects nginx sends', () => {
 // A BASE_PATH of "/gym/" or "gym" renders location prefixes nginx never matches: the container
 // came up and 404'd under the prefix, silently. The web image now refuses to start on one, from a
 // script nginx's entrypoint runs before it renders the template. Run here with sh, as it is there.
-describe('the web container refuses a BASE_PATH it cannot serve', () => {
+//
+// The script is a POSIX shell script that only ever runs inside the Linux image. On a Windows
+// checkout there is no `sh` at all, and spawning one fails with a null status that reads as a
+// broken script rather than a missing shell — so the block is skipped, loudly, instead.
+const hasSh = spawnSync('sh', ['-c', 'exit 0']).status === 0
+
+describe.skipIf(!hasSh)('the web container refuses a BASE_PATH it cannot serve', () => {
+  if (!hasSh) console.warn('api-base: skipping the nginx entrypoint checks — no `sh` on this machine')
   const WEB = join(dirname(fileURLToPath(import.meta.url)), '../../../web')
   const check = value => {
     const env = { PATH: process.env.PATH }

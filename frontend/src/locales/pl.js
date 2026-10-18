@@ -2241,4 +2241,6 @@ export default {
   'Your sports watch, calling you back.': 'Zegarek sportowy wzywa z powrotem.',
   'Coach wants you back on the bar.': 'Trener czeka przy sztandze.',
   'Gentle, for headphones or a quiet room.': 'Cichy, do słuchawek albo spokojnego pomieszczenia.',
+  '{0} sessions updated': { one: 'Zaktualizowano {0} sesję', few: 'Zaktualizowano {0} sesje', many: 'Zaktualizowano {0} sesji', other: 'Zaktualizowano {0} sesji' },
+  '{0} sessions to update': { one: '{0} sesja do aktualizacji', few: '{0} sesje do aktualizacji', many: '{0} sesji do aktualizacji', other: '{0} sesji do aktualizacji' },
 }

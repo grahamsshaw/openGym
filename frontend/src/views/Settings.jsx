@@ -34,7 +34,7 @@ import { CUSTOM, accentKey, adjustedIn, applyAccent, cleanHex, inkOn, isGrey } f
 import { checkForUpdate, downloadAndInstall } from '../lib/update.js'
 import { forgetCoach } from '../lib/coach-api.js'
 import { REST_MAX, REST_PAUSE_MIN, REST_PAUSE_MAX, fmtRest, fmtDuration } from '../lib/duration.js'
-import { starterPlanSheet, confirmSheet, importFromApp, importFromHevy, equipmentProfileSheet, plateInventorySheet, dumbbellInventorySheet, menuSheet } from '../sheets.jsx'
+import { starterPlanSheet, confirmSheet, importFromApp, importFromHevy, importFromTcx, equipmentProfileSheet, plateInventorySheet, dumbbellInventorySheet, menuSheet } from '../sheets.jsx'
 import Icon from '../components/Icon.jsx'
 import { durationSheet } from '../components/DurationWheel.jsx'
 import { showsConnection, showsLocalLine } from '../components/SyncBanner.jsx'
@@ -99,6 +99,7 @@ export default function Settings({ page = null, find = null, via = null }) {
   const { update, importConflict, importBackup, setUnit, resetEverything: resetAll, setUser, pullState, pushState, resetDemo } = useStore()
   const toast = useUI(s => s.toast)
   const fileRef = useRef(null)
+  const tcxRef = useRef(null)   // PERSONAL-TCX: .tcx enrichment files
   const importRef = useRef(null)
   const body = useRef(null)
   const wakeOK = wakeLockSupported()
@@ -799,6 +800,11 @@ export default function Settings({ page = null, find = null, via = null }) {
         <Row icon="key" iconTint="var(--teal)" title={t('Import from Hevy')}
           subtitle={t('Pull your history with a Hevy Pro API key')}
           accessory="chevron" onClick={importFromHevy} />
+        {/* PERSONAL-TCX: fold a console's per-second .tcx export into the
+            session it belongs to. Adds detail only — never creates one. */}
+        <Row icon="download" iconTint="var(--teal)" title={t('Add gym machine files (.tcx)')}
+          subtitle={t('Add heart rate, power and effort detail to a session your gym recorded')}
+          accessory="chevron" onClick={() => tcxRef.current.click()} />
         {/* PERSONAL-BRIDGE: server pull trigger + phone-file inbox. */}
         <BridgeDataSection />
       </Section>
@@ -810,6 +816,8 @@ export default function Settings({ page = null, find = null, via = null }) {
       {/* Reset after reading so picking the same file twice still fires onChange. */}
       <input ref={importRef} type="file" accept=".csv,.xml,text/csv,text/xml" style={{ display: 'none' }}
         onChange={ev => { const f = ev.target.files[0]; if (f) importFromApp(f); ev.target.value = '' }} />
+      <input ref={tcxRef} type="file" accept=".tcx,application/xml" multiple style={{ display: 'none' }}
+        onChange={ev => { const list = ev.target.files; if (list?.length) importFromTcx(list); ev.target.value = '' }} />
     </>,
 
     about: () => <>

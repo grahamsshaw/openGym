@@ -238,7 +238,7 @@ export default function Home() {
           <span className="dim small">{t('From gym sessions')}</span>
         </div>
         <div className="row" style={{ gap: 8, alignItems: 'baseline' }}>
-          <div className="big">{today ? today.moves.toLocaleString() : '—'}</div>
+          <div className="big">{today ? today.moves.toLocaleString() : '–'}</div>
           <span className="dim small" style={{ marginInlineStart: 'auto' }}>{t('today')}</span>
         </div>
         <div className="chart" style={{ marginTop: 8 }}><LineChart points={points} h={130} unit="MOVEs" /></div>

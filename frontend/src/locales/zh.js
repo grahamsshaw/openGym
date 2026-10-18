@@ -2241,4 +2241,6 @@ export default {
   'Your sports watch, calling you back.': '你的运动手表在叫你回来。',
   'Coach wants you back on the bar.': '教练等你回到杠铃前。',
   'Gentle, for headphones or a quiet room.': '轻柔，适合耳机或安静的房间。',
+  '{0} sessions updated': '已更新 {0} 次训练',
+  '{0} sessions to update': '待更新 {0} 次训练',
 }
