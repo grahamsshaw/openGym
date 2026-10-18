@@ -39,6 +39,28 @@ export async function readPlugin() {
   }
 }
 
+/**
+ * Ask for the read permissions, then report whether they are all held.
+ *
+ * The native `read` refuses outright without them, so this has to happen
+ * before it — asking for nothing and reporting a permission error tells the
+ * user to go somewhere the app cannot send them.
+ *
+ * @returns {Promise<boolean>} true when the read set is granted
+ */
+export async function ensureReadPermissions(hc) {
+  if (!hc) return false
+  try {
+    if (typeof hc.requestReadPermissions !== 'function') return false
+    const r = await hc.requestReadPermissions()
+    return !!r?.granted
+  } catch (e) {
+    // A refusal is an answer, not a crash: Health Connect may not be installed,
+    // or the user dismissed the sheet.
+    return false
+  }
+}
+
 const dayStart = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x.getTime() }
 const fmtDay = ms => {
   const d = new Date(ms)
@@ -55,12 +77,15 @@ const fmtTime = ms => {
  * Read the last `days` days, one window per day.
  *
  * @param {object} opts days, now (epoch ms), hc ({ read({startMs,endMs}) }),
- *   ownPackages (sessions from these apps are skipped as echo).
+ *   ownPackages (sessions from these apps are skipped as echo),
+ *   onProgress (done, total) — a 30-day read is 30 native round-trips and
+ *   without it the button looks broken while it works.
  * @returns { sessions[], days: {date: {steps,distanceM,calories,vitals}},
  *   sleep[] } with sleep deduped across midnight boundaries.
  */
 export async function readPhoneHealth({
   days = READ_DAYS_DEFAULT, now = Date.now(), hc, ownPackages = OWN_PACKAGES,
+  onProgress,
 } = {}) {
   if (!hc) throw Object.assign(new Error('Health Connect read is not available'), { code: 'unavailable' })
   const sessions = []
@@ -68,11 +93,14 @@ export async function readPhoneHealth({
   const sleepSeen = new Set()
   const sleep = []
   const today = dayStart(now)
+  let done = 0
   for (let back = days - 1; back >= 0; back--) {
     const startMs = today - back * 86400000
     const endMs = startMs + 86400000
     const date = fmtDay(startMs)
     const r = await hc.read({ startMs, endMs })
+    done++
+    if (onProgress) onProgress(done, days)
     const day = (dayMap[date] = dayMap[date] || {
       steps: 0, distanceM: 0, calories: 0, vitals: {},
     })

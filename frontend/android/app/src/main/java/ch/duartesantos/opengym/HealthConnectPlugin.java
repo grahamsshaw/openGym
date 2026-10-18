@@ -195,6 +195,60 @@ public class HealthConnectPlugin extends Plugin {
         });
     }
 
+    // PERSONAL-READ: ask for the READ set. requestPermissions() above asks for
+    // the WRITE set, which is a different set entirely (readPermissions(), line
+    // 116). `read` refuses without these, so without this method the read path
+    // could never be granted from inside the app and the button could only ever
+    // fail with "permission".
+    @PluginMethod
+    public void requestReadPermissions(PluginCall call) {
+        if (!"available".equals(sdkStatus())) {
+            call.reject("Health Connect is not available", "unavailable");
+            return;
+        }
+        // granted() talks to Health Connect over IPC, so it runs on the worker
+        // with everything else; startActivityForResult posts itself to the UI
+        // thread, so calling it from here is fine.
+        worker.execute(() -> {
+            try {
+                // Already held: answer straight away. Opening the sheet anyway
+                // would flash an empty one over the app on every tap. If the
+                // check cannot be made at all, fall through and ask — asking is
+                // always the safe answer.
+                if (granted().containsAll(readPermissions())) {
+                    JSObject ok = new JSObject();
+                    ok.put("granted", true);
+                    call.resolve(ok);
+                    return;
+                }
+            } catch (InterruptedException ignored) {
+                // fall through to the sheet
+            }
+            ActivityResultContract<Set<String>, Set<String>> contract = PermissionController.createRequestPermissionResultContract(PROVIDER);
+            Intent intent = contract.createIntent(getContext(), readPermissions());
+            startActivityForResult(call, intent, "readPermissionsResult");
+        });
+    }
+
+    @ActivityCallback
+    private void readPermissionsResult(PluginCall call, ActivityResult result) {
+        if (call == null) return;
+        ActivityResultContract<Set<String>, Set<String>> contract = PermissionController.createRequestPermissionResultContract(PROVIDER);
+        Set<String> got = contract.parseResult(result.getResultCode(), result.getData());
+        // The dialog answers only for this time; ask Health Connect what stands
+        // now, since the user may have granted some of the six and not others.
+        worker.execute(() -> {
+            try {
+                JSObject r = new JSObject();
+                r.put("granted", (got != null && got.containsAll(readPermissions()))
+                        || granted().containsAll(readPermissions()));
+                call.resolve(r);
+            } catch (Exception e) {
+                call.reject(e.getMessage(), "failed");
+            }
+        });
+    }
+
     @PluginMethod
     public void write(PluginCall call) {
         if (!"available".equals(sdkStatus())) {

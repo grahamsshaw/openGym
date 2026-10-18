@@ -1,6 +1,6 @@
 // PERSONAL-READ: readPhoneHealth + toHealthExportCsv against a fake plugin.
 import { describe, expect, it, vi } from 'vitest'
-import { readPhoneHealth, toHealthExportCsv } from './health-read.js'
+import { readPhoneHealth, toHealthExportCsv, ensureReadPermissions } from './health-read.js'
 
 const noon = (y, m, d, h = 12, min = 0) => new Date(y, m - 1, d, h, min).getTime()
 const NOW = noon(2026, 10, 8)
@@ -40,6 +40,41 @@ describe('readPhoneHealth', () => {
 
   it('refuses without a plugin', async () => {
     await expect(readPhoneHealth({ hc: null })).rejects.toMatchObject({ code: 'unavailable' })
+  })
+
+  it('reports progress so a 30-day read is not a dead button', async () => {
+    const seen = []
+    await readPhoneHealth({ days: 3, now: NOW, hc, onProgress: (d, n) => seen.push([d, n]) })
+    expect(seen).toEqual([[1, 3], [2, 3], [3, 3]])
+  })
+})
+
+// The native `read` rejects without the read set held, so the app has to ask
+// for it before reading. Asking nothing and reporting the refusal back meant
+// the button could only ever fail.
+describe('ensureReadPermissions', () => {
+  it('reports granted when Health Connect says so', async () => {
+    const plugin = { requestReadPermissions: vi.fn(async () => ({ granted: true })) }
+    await expect(ensureReadPermissions(plugin)).resolves.toBe(true)
+    expect(plugin.requestReadPermissions).toHaveBeenCalledTimes(1)
+  })
+
+  it('reports not granted when the sheet is dismissed', async () => {
+    const plugin = { requestReadPermissions: vi.fn(async () => ({ granted: false })) }
+    await expect(ensureReadPermissions(plugin)).resolves.toBe(false)
+  })
+
+  // Health Connect missing, or the sheet failing to open, must read as a plain
+  // refusal rather than an exception that skips the friendly message.
+  it('reports not granted when the request throws', async () => {
+    const plugin = { requestReadPermissions: vi.fn(async () => { throw new Error('no provider') }) }
+    await expect(ensureReadPermissions(plugin)).resolves.toBe(false)
+  })
+
+  // A plugin predating the read-permission method must not blow up either.
+  it('reports not granted when the method is missing', async () => {
+    await expect(ensureReadPermissions({ read: vi.fn() })).resolves.toBe(false)
+    await expect(ensureReadPermissions(null)).resolves.toBe(false)
   })
 })
 

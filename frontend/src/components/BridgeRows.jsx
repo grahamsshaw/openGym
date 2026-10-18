@@ -12,7 +12,7 @@ import { api } from '../lib/api.js'
 import { t } from '../lib/i18n.js'
 import { useUI } from '../store/useUI.js'
 import { MOBILE, isAndroid } from '../lib/mobile.js'
-import { readPlugin, readPhoneHealth, toHealthExportCsv, READ_DAYS_DEFAULT } from '../lib/health-read.js'
+import { readPlugin, readPhoneHealth, toHealthExportCsv, ensureReadPermissions, READ_DAYS_DEFAULT } from '../lib/health-read.js'
 import { Row, Section } from './ui.jsx'
 
 function statusLine(s) {
@@ -28,6 +28,7 @@ export function BridgeDataSection() {
   const toast = useUI(s => s.toast)
   const [status, setStatus] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [progress, setProgress] = useState(null)
   const [droid, setDroid] = useState(false)
   const upRef = useRef(null)
   useEffect(() => { if (MOBILE) isAndroid().then(setDroid).catch(() => {}) }, [])
@@ -73,16 +74,27 @@ export function BridgeDataSection() {
   // the export app's CSVs, straight into the server inbox. Needs the
   // personal APK (the official build has no native `read`); anything else
   // says so plainly instead of failing quietly.
+  //
+  // The read set is asked for here rather than assumed: `read` refuses without
+  // it, so a button that only reported the refusal could never succeed.
   const readPhone = async () => {
     if (busy) return
     setBusy(true)
+    setProgress(null)
     try {
       const hc = await readPlugin()
       if (!hc) {
         toast(t('Needs the personal app build with Health Connect read.'))
         return
       }
-      const read = await readPhoneHealth({ days: READ_DAYS_DEFAULT, hc })
+      if (!(await ensureReadPermissions(hc))) {
+        toast(t('Allow reading in Health Connect, then try again.'))
+        return
+      }
+      const read = await readPhoneHealth({
+        days: READ_DAYS_DEFAULT, hc,
+        onProgress: (done, total) => setProgress({ done, total }),
+      })
       const csv = toHealthExportCsv(read)
       const files = [
         ['Activity.csv', csv.activity],
@@ -93,15 +105,19 @@ export function BridgeDataSection() {
         await api('/api/bridge/inbox', { method: 'POST', body: JSON.stringify({ filename, content }) })
       }
       toast(files.length
-        ? t('{0} sessions from the last {1} days, on the server.', read.sessions.length, READ_DAYS_DEFAULT)
+        ? t('{0} sessions from the last {1} days, on the server. Now pull to import.',
+          read.sessions.length, READ_DAYS_DEFAULT)
         : t('Nothing new on this phone.'))
       await refresh()
     } catch (e) {
       toast(e?.code === 'permission' || /permission/i.test(e?.message || '')
         ? t('Allow reading in Health Connect, then try again.')
-        : t('Could not read phone health data.'))
+        // The old text swallowed the reason entirely, so a real failure was
+        // indistinguishable from a button that did nothing.
+        : t('Could not read phone health data: {0}', e?.message || t('unknown error')))
     } finally {
       setBusy(false)
+      setProgress(null)
     }
   }
 
@@ -111,8 +127,14 @@ export function BridgeDataSection() {
         subtitle={status ? statusLine(status) : t('Ask the server to fetch Technogym, Wii and waiting phone files.')}
         accessory="chevron" onClick={pull} />
       {MOBILE && droid && <Row icon="heart" iconTint="var(--red)" title={t('Read phone health data')}
-        subtitle={t('Last {0} days from Health Connect, straight to the server.', READ_DAYS_DEFAULT)}
-        accessory="chevron" onClick={readPhone} />}
+        subtitle={progress
+          // A 30-day read is 30 native round-trips. Without a running count the
+          // button looks dead for the whole of it, which is what "nothing
+          // happened" meant when the permission prompt had not even been asked.
+          ? t('Reading day {0} of {1}…', progress.done, progress.total)
+          : t('Last {0} days from Health Connect, straight to the server.', READ_DAYS_DEFAULT)}
+        accessory={progress ? 'none' : 'chevron'}
+        onClick={progress ? undefined : readPhone} />}
       <Row icon="share" iconTint="var(--teal)" title={t('Send phone files to server')}
         subtitle={t('Health Data Export CSVs from this device. The next pull imports them.')}
         accessory="chevron" onClick={() => upRef.current.click()} />
