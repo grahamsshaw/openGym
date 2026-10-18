@@ -115,13 +115,18 @@ export function BridgeDataSection() {
     setReadNote(null)
     beacon('read-tapped')
     try {
-      const hc = await readPlugin()
-      beacon('read-plugin', { havePlugin: !!hc })
+      const found = await readPlugin()
+      beacon('read-plugin', { havePlugin: !!found.hc, why: found.why })
+      const hc = found.hc
       if (!hc) {
-        // Either Health Connect is not reachable, or the lookup gave up waiting.
-        // Both end here, so the wording has to cover both rather than blame the
-        // build for something that may be the phone.
-        const msg = t('Could not reach Health Connect. Check it is installed and opens, then try again.')
+        // Each way of arriving here gets its own words. A lookup that timed out
+        // and Health Connect not being installed are different problems, and
+        // they used to read the same.
+        const msg = found.why === 'timeout'
+          ? t('Health Connect took too long to answer. Close the app and try again.')
+          : found.why === 'web'
+            ? t('This is not the phone build.')
+            : t('Could not reach Health Connect. Check it is installed and opens, then try again.')
         setReadNote(msg)
         toast(msg)
         return

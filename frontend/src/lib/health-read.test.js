@@ -49,30 +49,49 @@ describe('readPhoneHealth', () => {
   })
 })
 
-// The one that wedged the whole screen: this lookup used to reach isAndroid
-// through `await import('./mobile.js')`, which never settled in the app's
-// WebView. The tap arrived, nothing came back, and the busy flag it left behind
-// locked every later tap out - so it must always settle, one way or another.
+// The one that wedged the whole screen: this lookup used to build its own
+// Capacitor import chain, which never settled in the app's WebView. The tap
+// arrived, nothing came back, and the busy flag it left behind locked every
+// later tap out - so it must always settle, one way or another, and say which.
 describe('readPlugin', () => {
+  // MOBILE is a build-time constant, false under vitest, so the phone branch is
+  // opted into explicitly here rather than relying on the environment.
+  const asPhone = async () => {
+    vi.resetModules()
+    vi.doMock('./mobile.js', () => ({ MOBILE: true }))
+    return import('./health-read.js')
+  }
+  const clear = () => { vi.doUnmock('./health-sync.js'); vi.doUnmock('./mobile.js'); vi.resetModules() }
+
   it('gives up rather than hanging when the lookup never settles', async () => {
-    vi.resetModules()
-    vi.doMock('./mobile.js', () => ({
-      MOBILE: true,
-      isAndroid: () => new Promise(() => {}), // never resolves
-    }))
-    const mod = await import('./health-read.js?stuck')
-    await expect(mod.readPlugin({ timeoutMs: 20 })).resolves.toBeNull()
-    vi.doUnmock('./mobile.js')
-    vi.resetModules()
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: () => new Promise(() => {}) }))
+    const mod = await asPhone()
+    await expect(mod.readPlugin({ timeoutMs: 20 })).resolves.toEqual({ hc: null, why: 'timeout' })
+    clear()
   })
 
-  it('reports no plugin on a non-mobile build without waiting', async () => {
+  it('names the reason when the plugin is simply not there', async () => {
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => null }))
+    const mod = await asPhone()
+    await expect(mod.readPlugin()).resolves.toEqual({ hc: null, why: 'unavailable' })
+    clear()
+  })
+
+  it('hands back the proxy it was given', async () => {
+    const proxy = { read: () => {} }
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => ({ HC: proxy }) }))
+    const mod = await asPhone()
+    await expect(mod.readPlugin()).resolves.toEqual({ hc: proxy })
+    clear()
+  })
+
+  it('reports no plugin on a web build without waiting', async () => {
     vi.resetModules()
-    vi.doMock('./mobile.js', () => ({ MOBILE: false, isAndroid: async () => false }))
-    const mod = await import('./health-read.js?web')
-    await expect(mod.readPlugin()).resolves.toBeNull()
-    vi.doUnmock('./mobile.js')
-    vi.resetModules()
+    vi.doMock('./mobile.js', () => ({ MOBILE: false }))
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => ({ HC: {} }) }))
+    const mod = await import('./health-read.js')
+    await expect(mod.readPlugin()).resolves.toEqual({ hc: null, why: 'web' })
+    clear()
   })
 })
 

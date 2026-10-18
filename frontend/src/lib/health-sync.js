@@ -25,6 +25,12 @@ const plugin = () => pluginP || (pluginP = (async () => {
   return { HC: registerPlugin('HealthConnect') }
 })().catch(() => null))
 
+// Exported so the read path uses this exact accessor rather than building its
+// own. lib/health-read.js did, and its version timed out on every tap while
+// this one - which the Write to Health Connect row proves works - does not.
+// One way to reach the plugin means one thing to be wrong.
+export const healthPlugin = plugin
+
 // The file's content, read once and then kept here: a save while it is off (the usual case) must
 // not cost a file read, and every change to it goes through saveHealth anyway.
 let cached = null

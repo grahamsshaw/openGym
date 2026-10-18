@@ -7,13 +7,12 @@
 // side is HealthConnectPlugin.read. Day attribution: a session belongs to
 // the day it starts; a night's sleep to the day its first minute falls in;
 // a record appearing in two adjacent day windows is kept once (by start).
-// isAndroid is imported statically, the way lib/health-sync.js does it for the
-// write path. This file used to reach it through `await import('./mobile.js')`
-// at call time, and that extra dynamic import never settled inside the app's
-// WebView: the tap arrived, the function never returned, and the busy flag it
-// left behind locked every later tap out. The write path proves the static form
-// works, so there is no reason to differ.
-import { MOBILE, isAndroid } from './mobile.js'
+// isAndroid is no longer imported here. This lookup used to build its own
+// Capacitor import chain and timed out on every single tap; health-sync.js has
+// an accessor that the Write to Health Connect row proves settles, so the read
+// path now uses that one instead of a second copy of the same logic.
+import { MOBILE } from './mobile.js'
+import { healthPlugin } from './health-sync.js'
 
 export const READ_DAYS_DEFAULT = 30
 
@@ -35,27 +34,35 @@ export const TYPE_LABELS = {
 export const OWN_PACKAGES = ['ch.duartesantos.opengym']
 
 /** The native plugin, or null on web/iOS/official builds without `read`. */
+/**
+ * The Health Connect plugin proxy, or why there isn't one.
+ *
+ * Reached through lib/health-sync.js's accessor, the one the Write to Health
+ * Connect row proves settles. This file used to build its own Capacitor import
+ * chain and timed out on every tap.
+ *
+ * Bounded on purpose: a lookup that never settles is worse than any failure,
+ * because it takes the caller's busy flag down with it and every other button
+ * stops answering. The reason is reported so a failure names its cause.
+ *
+ * @returns {Promise<{hc: object|null, why?: string}>}
+ *   `why` is 'web', 'unavailable' or 'timeout'.
+ */
 export async function readPlugin({ timeoutMs = PLUGIN_TIMEOUT_MS } = {}) {
-  if (!MOBILE) return null
+  if (!MOBILE) return { hc: null, why: 'web' }
   let timer
+  let timedOut = false
   try {
-    // Bounded on purpose. Whatever this waits for has stalled once already, and
-    // a hang that never settles is worse than any failure: it takes the caller's
-    // busy flag down with it and every other button stops answering.
-    const found = await Promise.race([
-      (async () => {
-        if (!(await isAndroid())) return null
-        const { registerPlugin } = await import('@capacitor/core')
-        const HC = registerPlugin('HealthConnect')
-        return typeof HC?.read === 'function' ? HC : null
-      })(),
+    const hc = await Promise.race([
+      healthPlugin().then(p => (p?.HC ? p.HC : null)).catch(() => null),
       new Promise(resolve => {
-        timer = setTimeout(() => resolve(null), timeoutMs)
+        timer = setTimeout(() => { timedOut = true; resolve(null) }, timeoutMs)
       }),
     ])
-    return found
+    if (!hc) return { hc: null, why: timedOut ? 'timeout' : 'unavailable' }
+    return { hc }
   } catch {
-    return null
+    return { hc: null, why: 'unavailable' }
   } finally {
     clearTimeout(timer)
   }
