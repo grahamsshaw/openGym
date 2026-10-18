@@ -1,5 +1,20 @@
 apply plugin: 'com.android.application'
 
+// PERSONAL-APK: release signing from a local keystore.properties (git-ignored).
+//
+// The upstream project signs its releases with a key held by its author, which a
+// fork cannot have. Without a keystore of our own `assembleRelease` still
+// succeeds but produces an *unsigned* APK, and Android refuses to install one --
+// so the build looks fine and fails only at the phone. Reading the settings from
+// a file keeps the passwords out of the repository, and the guard means a machine
+// without that file still configures and builds a debug APK as before.
+def keystoreProps = new Properties()
+def keystorePropsFile = rootProject.file('keystore.properties')
+def hasReleaseKeystore = keystorePropsFile.exists()
+if (hasReleaseKeystore) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
 android {
     namespace "ch.duartesantos.opengym"
     compileSdk rootProject.ext.compileSdkVersion
@@ -16,8 +31,19 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            release {
+                storeFile rootProject.file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+            }
+        }
+    }
     buildTypes {
         release {
+            if (hasReleaseKeystore) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             // The barcode scanner's ML Kit library ships a native build for four CPU families.

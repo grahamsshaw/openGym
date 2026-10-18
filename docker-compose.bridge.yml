@@ -13,6 +13,14 @@ services:
       context: ./bridge
     restart: unless-stopped
     env_file: ./bridge/.env
+    # The runner talks to openGym over the web port published on the host.
+    # Docker Desktop (Windows/Mac) hands the container host.docker.internal for
+    # free; plain Docker Engine on Linux does not, so the bridge silently lost
+    # the server there and every pull failed with a connection error. Mapping
+    # the host gateway in makes the name resolve on both, so this file works
+    # unchanged on the Linux home server.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       # Job queue + heartbeat + inbox, shared with the api container.
       - ./data:/data

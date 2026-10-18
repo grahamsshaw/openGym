@@ -31,5 +31,9 @@ frontend/bundle-size.json
 # Personal bridge working outputs
 bridge/out/
 
+# Python bytecode from the bridge converters (personal Python, not upstream's)
+__pycache__/
+*.pyc
+
 # Local planning notes
 docs/superpowers/plans/
