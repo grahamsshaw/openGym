@@ -1,15 +1,20 @@
 # Auto-pull: gym + phone + Wii into openGym, unattended
 
-Yes — the pull half already exists: the Flask project's
-`scripts/import_data.py --source all` fetches Technogym (live API),
-Wii Fit (Shield folder) and Health Connect CSVs, idempotently
-(`ImportLog`/`source_id` dedup). What was missing was the last mile into
-openGym. This page closes it: pull → convert → push, all idempotent, all
-logged, conflicts aborting loudly instead of overwriting.
+Yes — the pull half already exists, and it now lives entirely inside this
+repository. `bridge/technogym_fetch.py` logs into Technogym's cloud and writes
+the sessions it finds into `bridge/data/technogym.db`, idempotently (each
+session is keyed by its `idCr`, so a re-run stores nothing twice). Wii Fit
+dumps and Health Connect CSVs are read from folders the bridge owns the same
+way. What the old Flask project contributed to this step — the login, and
+nothing else — is now a script of our own, so the home server needs nothing but
+openGym cloned. This page covers the last mile into openGym: pull → convert →
+push, all idempotent, all logged, conflicts aborting loudly instead of
+overwriting.
 
 ## The chain (`bridge/pull_all.bat`)
 
-1. **Pull** — `import_data.py` refreshes the Flask SQLite hub.
+1. **Pull** — `technogym_fetch.py` refreshes `bridge/data/technogym.db` from
+   the live Technogym API.
 2. **Stage inbox** — phone files sent via Settings → Data land in
    `data/bridge/inbox/`; recognised Health Data Export names are copied
    over the manual export folder before converting.

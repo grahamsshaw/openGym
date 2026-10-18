@@ -6,9 +6,10 @@ Two inputs, one output (see ``documentation/BRIDGE-GUIDE.md``):
   frozen snapshot; same shape the live API returns). Yields inferred
   machine labels (treadmill / bike / rower / climb / strength) because the
   export names no machine.
-- ``--db``: the Flask ``fitness.db``, holding sessions pulled live by
-  ``import_data.py`` — these carry the real ``physicalActivityName`` and
-  ``equipmentName``. Only sessions NEWER than the newest export-file
+- ``--db``: the live-pull database this bridge owns
+  (``bridge/data/technogym.db``, written by ``technogym_fetch.py``) — these
+  sessions carry the real ``physicalActivityName`` and ``equipmentName``.
+  Only sessions NEWER than the newest export-file
   session are emitted, so the frozen snapshot and the live pull never
   double-report the same training.
 
@@ -29,8 +30,9 @@ export; see ``documentation/TECHNOGYM-PROGRAMS.md``):
 
 Usage::
 
-    py bridge/technogym_export_to_opengym.py --input data/technogym_export --out bridge/out
-    py bridge/technogym_export_to_opengym.py --input data/technogym_export --db data/fitness.db --out bridge/out
+    py bridge/technogym_export_to_opengym.py --input bridge/data/technogym_export --out bridge/out
+    py bridge/technogym_export_to_opengym.py --input bridge/data/technogym_export \
+       --db bridge/data/technogym.db --out bridge/out
 
 Re-running is safe: the output is a pure function of the inputs.
 openGym itself skips days that already hold a workout, so importing twice
@@ -191,7 +193,7 @@ def convert_db(db_path: str | Path, after: str) -> list[dict]:
     pull from double-reporting the same training.
 
     Args:
-        db_path: Path to the Flask ``fitness.db``.
+        db_path: Path to the live-pull database (``data/technogym.db``).
         after: Only sessions with a date strictly after this are emitted.
 
     Returns:
@@ -272,7 +274,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", required=True, help="Technogym export folder")
     parser.add_argument("--db", default=None,
-                        help="Flask fitness.db for live-pulled sessions newer than the export")
+                        help="live-pull database (technogym.db) for sessions newer than the export")
     parser.add_argument("--out", required=True, help="Output folder for CSVs")
     args = parser.parse_args()
 

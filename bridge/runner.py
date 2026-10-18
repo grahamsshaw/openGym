@@ -3,9 +3,9 @@
 Polls DATA_DIR/bridge/jobs/ for pending jobs (written by POST
 /api/bridge/pull) plus a nightly full run, then executes, in order:
 
-1. Flask ``import_data.py`` (Technogym live API, Wii Shield folder,
-   Health Connect CSV folder) — failures are logged, never fatal; the
-   chain continues with whatever is present.
+1. ``technogym_fetch.py`` (Technogym live API) into bridge/data/technogym.db —
+   failures are logged, never fatal; the chain continues with whatever is
+   present.
 2. Stage recognised inbox files over the Health Connect export folder.
 3. The three bridge converters + the combined-file merge.
 4. ``autopush.mjs --live`` (merge with openGym's own importer, conditional
@@ -17,12 +17,14 @@ run. Successful jobs are deleted; failed ones stay for inspection.
 
 Environment (see bridge/.env.example):
 
-- FLASK_DIR: the Personal Fitness Tracker project (scripts + data).
 - BRIDGE_DIR: this project's bridge/ folder (converters, autopush).
+- BRIDGE_DATA_DIR: source data this bridge owns — technogym.db (live pull),
+  technogym_export/, wii_fit/, health_data_export/. Default /bridge/data.
 - DATA_DIR: openGym data dir (default /data) — jobs + heartbeat live here.
 - OG_URL: openGym base URL (default http://host.docker.internal:8080,
   i.e. this PC's published web port, reachable from inside Docker).
 - OG_USER / OG_PASS: password-login profile for autopush (never in git).
+- MYWELLNESS_EMAIL / MYWELLNESS_PASSWORD: Technogym cloud login (never in git).
 - POLL_SECONDS (default 60), FULL_EVERY_HOURS (default 20).
 """
 
@@ -112,31 +114,35 @@ def stage_inbox(flask_data: Path, notes: list[str]) -> None:
 
 def run_chain(sources: list[str]) -> dict:
     """Execute pull → convert → merge → push. Returns a result summary."""
-    flask = Path(env("FLASK_DIR", "/flask"))
     bridge = Path(env("BRIDGE_DIR", "/bridge"))
+    # Source data this bridge owns. It used to live in the old Flask project;
+    # bringing it in here is what lets the home server run with nothing but
+    # openGym cloned.
+    src = Path(env("BRIDGE_DATA_DIR", str(bridge / "data")))
     out = bridge / "out"
     out.mkdir(parents=True, exist_ok=True)
     notes: list[str] = []
     added = skipped = 0
 
-    code, text = run([sys.executable, str(flask / "scripts" / "import_data.py"),
-                      "--source", "all", "--days", "30"])
-    notes.append(f"import_data exit {code}")
+    db_path = src / "technogym.db"
+    code, text = run([sys.executable, str(bridge / "technogym_fetch.py"),
+                      "--db", str(db_path), "--days", "30"])
+    notes.append(f"technogym fetch exit {code}")
     if code != 0:
         notes.append(text.strip().splitlines()[-1] if text.strip() else "no output")
 
-    stage_inbox(flask / "data", notes)
+    stage_inbox(src, notes)
 
     converters = [
         ([sys.executable, str(bridge / "technogym_export_to_opengym.py"),
-          "--input", str(flask / "data" / "technogym_export"),
-          "--db", str(flask / "data" / "fitness.db"),
+          "--input", str(src / "technogym_export"),
+          "--db", str(db_path),
           "--out", str(out)], "technogym"),
         ([sys.executable, str(bridge / "wii_to_opengym.py"),
-          "--input", str(flask / "data" / "wii_fit"),
+          "--input", str(src / "wii_fit"),
           "--out", str(out)], "wii"),
         ([sys.executable, str(bridge / "health_connect_to_opengym.py"),
-          "--input", str(flask / "data" / "health_data_export"),
+          "--input", str(src / "health_data_export"),
           "--out", str(out)], "health-connect"),
     ]
     for cmd, label in converters:

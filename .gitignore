@@ -31,6 +31,11 @@ frontend/bundle-size.json
 # Personal bridge working outputs
 bridge/out/
 
+# Personal bridge source data: the live Technogym database, the gym export,
+# Wii Fit dumps and Health Connect CSVs. Copied across by the migration bundle,
+# never committed.
+bridge/data/
+
 # Python bytecode from the bridge converters (personal Python, not upstream's)
 __pycache__/
 *.pyc

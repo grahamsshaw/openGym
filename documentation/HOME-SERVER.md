@@ -15,8 +15,10 @@ the bridge:
 | `opengym` | `docker-compose.yml` (upstream's) | web + api on port 8080 |
 | `opengym-bridge` | `docker-compose.bridge.yml` (ours) | the runner that pulls gym data |
 
-Plus a second repo, `personal-fitness-tracker` (the Flask project), mounted
-into the bridge at `/flask` for its Technogym login and database.
+Plus one more folder the bridge owns, `bridge/data/`, holding the Technogym
+live database, the gym export, Wii Fit dumps and Health Connect CSVs. Nothing
+else is needed: the bridge's Technogym login is `bridge/technogym_fetch.py`, so
+there is no second repository to clone.
 
 ## Why the bridge has its own `extra_hosts`
 
@@ -60,11 +62,11 @@ In `bridge/.env`:
 
 ```
 OG_URL=http://host.docker.internal:6080
-FLASK_DIR_HOST=/home/<you>/personal-fitness-tracker
 ```
 
-An absolute path on the Mini. Avoid spaces in the folder name — a space inside a
-Docker volume path is a very good way to lose an afternoon.
+Everything else the bridge needs is already set in that file, and travels with
+the bundle: the openGym password profile for the push, and the Technogym cloud
+credentials (`MYWELLNESS_EMAIL` / `MYWELLNESS_PASSWORD`).
 
 ## Ports
 
@@ -123,12 +125,22 @@ CAs, see `network_security_config.xml`) but browsers will warn on every visit.
 stays paired; lose it and each one has to pair again through Settings on the
 phone. Back it up alongside `data/`.
 
+## The Technogym login
+
+It lives in `bridge/.env` as `MYWELLNESS_EMAIL` / `MYWELLNESS_PASSWORD` — the
+same MyWellness account as the gym's own app — and is used by
+`bridge/technogym_fetch.py`. That script used to be `import_data.py` inside the
+old Flask project; it was the only piece of that project still in use, and it
+is now a script of our own.
+
+`bridge/data/` is git-ignored (it is your data), so it travels with the
+migration bundle rather than with the clone. If gym pulls come back empty after
+the move, that folder is the thing to check.
+
 ## One trap worth naming
 
-The bridge's Technogym login lives in the **Flask project's** `.env`
-(`MYWELLNESS_EMAIL` / `MYWELLNESS_PASSWORD`), not in openGym's. The bridge
-container mounts the Flask project at `/flask` and reads it from there. That
-project is a separate git repository (`grahamshaw/personal-fitness-tracker`),
-and its `data/` plus its `.env` are both git-ignored — so cloning it on the Mini
-brings code only, and the gym pulls fail until both are restored from the
-migration bundle.
+`bridge/.env` and `bridge/data/` are both git-ignored — that is correct, they
+hold your passwords and your gym data. It also means a `git clone` on the Mini
+brings neither. Both travel in the migration bundle instead, and until they are
+in place the pull button returns nothing while the rest of the app looks
+perfectly healthy. If gym pulls come back empty, check those two first.
