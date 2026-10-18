@@ -21,6 +21,7 @@ For one person's use only; the server is never exposed to others.
 | How data flows between app and database | `documentation/ARCHITECTURE.md` |
 | What's allowed (licences, images) | `documentation/LICENSING.md` |
 | Gym QR → exercise plan | `documentation/QR-PLAN.md` |
+| Adding .tcx detail to a gym session | `documentation/TCX-IMPORT.md` |
 | Health Connect plan (Android) | `documentation/HEALTH-CONNECT-PLAN.md` |
 | What Technogym records about programs | `documentation/TECHNOGYM-PROGRAMS.md` |
 | Staying signed in on the phone | `documentation/PHONE-ACCESS.md` |

@@ -54,8 +54,15 @@ rows already state their program in the exercise name):
 4. Else nothing. Intervals are never guessed without block shapes.
 
 Guesses render in notes as "likely Hills (7/10)". On the verified export,
-4 of 167 rows earn one — conservative on purpose. TCX laps and logged
-modes stay the upgrade path (see above).
+4 of 167 rows earn one — conservative on purpose.
+
+**Since: the .tcx files carry the block shape.** A console export holds every
+few seconds of speed, which is exactly the evidence rule 2 lacked — it is why
+intervals were never guessed. Settings → Data → Add gym machine files (.tcx)
+folds that shape into the session it belongs to (see `TCX-IMPORT.md`), and the
+effort is then described on the entry ("19 speed levels 5.1-10.3 km/h …
+hi-lo blocks"). The name is still not certain from shape alone: the console's
+own label, when it gives one, still wins.
 
 ## AI hook (deferred with the rest of the AI work)
 
