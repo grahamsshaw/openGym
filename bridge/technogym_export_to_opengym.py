@@ -269,6 +269,76 @@ def convert_db(db_path: str | Path, after: str) -> list[dict]:
     return workouts
 
 
+# Readings closer together than this are the same weight measured twice; real
+# weight does not move by a kilo or more inside one weigh-in.
+SAME_READING_KG = 2.0
+
+
+def _agreeing_groups(values: list[float], tol: float = SAME_READING_KG) -> list[list[float]]:
+    """Group a day's readings into runs that agree, nearest neighbour first."""
+    groups: list[list[float]] = []
+    for value in sorted(values):
+        for group in groups:
+            if abs(value - group[-1]) <= tol:
+                group.append(value)
+                break
+        else:
+            groups.append([value])
+    return groups
+
+
+def resolve_conflicts(weighins: list[dict]) -> tuple[list[dict], list, list]:
+    """Drop weigh-in readings that the rest of the same day contradicts.
+
+    The gym's scale reports a fault reading now and then — always the same
+    value, about half the real one — and a day can then hold both. openGym
+    keeps the last row for a day, so position alone decides, which is how the
+    fault reading won.
+
+    A day is only touched when the readings themselves settle it: those that
+    agree form the larger group, and the ones standing alone go. A day with a
+    single reading, or one that splits evenly, is left exactly as found — there
+    is no evidence there, and guessing is how real weight gets lost.
+
+    Returns ``(kept, dropped, unresolved)``, the last two being
+    ``(date, values)`` pairs for the report.
+    """
+    by_day: dict[str, list[tuple[float, dict]]] = {}
+    for row in weighins:
+        try:
+            by_day.setdefault(row["date"], []).append((float(row["weight"]), row))
+        except (KeyError, TypeError, ValueError):
+            continue
+
+    # Everything starts kept, including any row whose weight will not parse: this
+    # function exists to drop strays the day contradicts, and a row it cannot
+    # read is not a stray, it is simply not this function's business.
+    keep = {id(row) for row in weighins}
+    dropped: list[tuple[str, list[float]]] = []
+    unresolved: list[tuple[str, list[float]]] = []
+
+    for day in sorted(by_day):
+        entries = by_day[day]
+        values = [v for v, _ in entries]
+        # One reading, or readings that all agree: nothing to decide.
+        if len(values) < 2 or max(values) - min(values) <= SAME_READING_KG:
+            continue
+
+        groups = _agreeing_groups(values)
+        biggest = max(len(g) for g in groups)
+        winners = [g for g in groups if len(g) == biggest]
+        # A clear majority, and more than one reading behind it, is a verdict.
+        if len(winners) == 1 and len(winners[0]) > 1:
+            for value, row in entries:
+                if value not in winners[0]:
+                    keep.discard(id(row))
+                    dropped.append((day, [value]))
+        else:
+            unresolved.append((day, values))
+
+    return [row for row in weighins if id(row) in keep], dropped, unresolved
+
+
 def main() -> None:
     """CLI entry point: read export and/or live DB, write openGym CSVs."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -300,6 +370,22 @@ def main() -> None:
         workouts.extend(live)
         print(f"live sessions after {newest}: {len(live)}")
 
+    # Same-day disagreements: the gym's scale occasionally returns a fault
+    # reading (another person steps on, the cell reads low), and a day can then
+    # hold both the real weight and the stray. openGym keeps the LAST row per
+    # day, so a stray that lands last wins by position alone — which is how a
+    # 70 kg reading came to stand in for a 105 kg one.
+    #
+    # Where the day itself gives a verdict, use it: the readings that agree win,
+    # the ones standing alone are dropped. 105/105/70 resolves to 105. It has to
+    # be resolved here, because this CSV is regenerated on every pull — an
+    # earlier hand-edit of the file was wiped the next time the bridge ran.
+    #
+    # Where a day splits evenly and nothing corroborates either reading, there
+    # is no evidence to decide with, so everything is kept and the day reported.
+    # A lone reading is never touched.
+    kept, dropped, conflicts = resolve_conflicts(weighins)
+
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     with open(out / "opengym_workouts.csv", "w", newline="", encoding="utf-8") as fh:
@@ -312,23 +398,14 @@ def main() -> None:
     with open(out / "opengym_weighins.csv", "w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=["date", "weight"])
         writer.writeheader()
-        writer.writerows(weighins)
+        writer.writerows(kept)
 
-    # Same-day disagreements are reported, never silently resolved:
-    # openGym keeps the LAST row per day, so a stray bad reading (another
-    # person on the gym scale, a partial measurement) would win by position
-    # alone. Check any listed day and delete the bad row from your working
-    # copy before importing.
-    by_day: dict[str, list[float]] = {}
-    for row in weighins:
-        try:
-            by_day.setdefault(row["date"], []).append(float(row["weight"]))
-        except (TypeError, ValueError):
-            continue
-    for day in sorted(by_day):
-        values = by_day[day]
-        if len(values) > 1 and max(values) - min(values) > 2.0:
-            print(f"CONFLICT {day}: {sorted(values)} kg — resolve before importing")
+    for day, values in dropped:
+        print(f"DROPPED {day}: {values} kg — the rest of that day agreed")
+    for day, values in conflicts:
+        print(f"CONFLICT {day}: {sorted(values)} kg — split evenly, kept all")
+    if dropped:
+        print(f"weigh-ins: dropped {len(dropped)} stray reading(s)")
 
     print(f"sessions: {len(indoor)}, workout rows: {len(workouts)}, "
           f"weigh-ins: {len(weighins)}")
