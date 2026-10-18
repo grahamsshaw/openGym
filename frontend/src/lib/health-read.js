@@ -48,23 +48,54 @@ export async function readPlugin() {
  * cannot ask" indistinguishable from the outside. The reason is what tells us
  * which one it was, so it is returned rather than thrown away.
  *
+ * `status` is the plugin's own answer to "is Health Connect even here", taken
+ * before asking, because on Android 13 and lower it is an app of its own and may
+ * simply not be installed — asking for permission there can only fail.
+ *
+ * A plugin call that never answers would leave the caller's busy flag set for
+ * good and take every other button down with it, so the wait is bounded.
+ *
  * @returns {Promise<{ok: boolean, why?: string, message?: string}>}
- *   `why` is one of: 'no-plugin', 'unavailable', 'denied', 'failed'.
+ *   `why` is one of: 'no-plugin', 'missing', 'update', 'unsupported',
+ *   'unavailable', 'denied', 'timeout', 'failed'.
  */
-export async function ensureReadPermissions(hc) {
+export const PERMISSION_TIMEOUT_MS = 45000
+
+export async function ensureReadPermissions(hc, { timeoutMs = PERMISSION_TIMEOUT_MS } = {}) {
   if (!hc) return { ok: false, why: 'no-plugin' }
+  if (typeof hc.requestReadPermissions !== 'function') return { ok: false, why: 'no-plugin' }
+
   try {
-    if (typeof hc.requestReadPermissions !== 'function') return { ok: false, why: 'no-plugin' }
-    const r = await hc.requestReadPermissions()
+    // status() is a plain plugin call with no activity result behind it, so it
+    // cannot be the thing that hangs. Where Health Connect is not installed,
+    // asking for permission is pointless and this is the real answer.
+    if (typeof hc.status === 'function') {
+      const st = await hc.status()
+      if (st?.status && st.status !== 'available') return { ok: false, why: st.status }
+    }
+  } catch { /* an unreadable status is not fatal; the request below is the real test */ }
+
+  let timer
+  try {
+    const r = await Promise.race([
+      hc.requestReadPermissions(),
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(Object.assign(
+          new Error('Health Connect did not answer'), { code: 'timeout' })), timeoutMs)
+      }),
+    ])
     return r?.granted ? { ok: true } : { ok: false, why: 'denied' }
   } catch (e) {
     const code = e?.code || ''
     const text = e?.message || ''
+    if (code === 'timeout') return { ok: false, why: 'timeout' }
     // Health Connect not installed, or its provider needs updating. Nothing the
     // user can grant, so it must not be reported as a permission problem.
     if (code === 'unavailable' || /not available/i.test(text)) return { ok: false, why: 'unavailable' }
     if (code === 'permission') return { ok: false, why: 'denied' }
     return { ok: false, why: 'failed', message: text }
+  } finally {
+    clearTimeout(timer)
   }
 }
 

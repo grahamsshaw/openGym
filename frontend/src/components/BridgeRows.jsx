@@ -97,13 +97,18 @@ export function BridgeDataSection() {
       }
       const permit = await ensureReadPermissions(hc)
       if (!permit.ok) {
-        const note = permit.why === 'unavailable'
-          ? t('Health Connect is not available on this phone.')
-          : permit.why === 'no-plugin'
-            ? t('This build cannot ask for Health Connect access.')
-            : permit.why === 'denied'
-              ? t('Health Connect access was not granted.')
-              : t('Health Connect request failed: {0}', permit.message || t('unknown error'))
+        // Each reason gets its own words. "Not installed" and "you said no" look
+        // identical from the outside if both are reported as a permission.
+        const WHY = {
+          'no-plugin': t('This build cannot ask for Health Connect access.'),
+          missing: t('Health Connect is not installed on this phone. Install it from the Play Store, then try again.'),
+          update: t('Health Connect needs updating before it can be used.'),
+          unsupported: t('Health Connect is not available on this phone.'),
+          unavailable: t('Health Connect is not available on this phone.'),
+          denied: t('Health Connect access was not granted.'),
+          timeout: t('Health Connect did not answer. Close the app and try again.'),
+        }
+        const note = WHY[permit.why] || t('Health Connect request failed: {0}', permit.message || t('unknown error'))
         setReadNote(note)
         toast(note)
         return

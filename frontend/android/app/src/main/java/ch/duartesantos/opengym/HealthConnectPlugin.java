@@ -211,9 +211,18 @@ public class HealthConnectPlugin extends Plugin {
         // first, which meant calling startActivityForResult off the calling
         // thread, and the sheet then failed to open at all. The empty sheet on a
         // second tap is a fair price for the sheet opening on the first one.
-        ActivityResultContract<Set<String>, Set<String>> contract = PermissionController.createRequestPermissionResultContract(PROVIDER);
-        Intent intent = contract.createIntent(getContext(), readPermissions());
-        startActivityForResult(call, intent, "readPermissionsResult");
+        //
+        // Wrapped because an exception escaping a plugin method leaves the
+        // JavaScript promise unsettled: no sheet, no answer, no error, and the
+        // caller's busy flag stuck on forever, which quietly killed every other
+        // button sharing it. Anything thrown here has to become a rejection.
+        try {
+            ActivityResultContract<Set<String>, Set<String>> contract = PermissionController.createRequestPermissionResultContract(PROVIDER);
+            Intent intent = contract.createIntent(getContext(), readPermissions());
+            startActivityForResult(call, intent, "readPermissionsResult");
+        } catch (Exception e) {
+            call.reject("Could not open Health Connect: " + e.getMessage(), "failed");
+        }
     }
 
     @ActivityCallback

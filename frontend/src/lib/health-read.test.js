@@ -95,6 +95,42 @@ describe('ensureReadPermissions', () => {
     await expect(ensureReadPermissions({ read: vi.fn() })).resolves.toEqual({ ok: false, why: 'no-plugin' })
     await expect(ensureReadPermissions(null)).resolves.toEqual({ ok: false, why: 'no-plugin' })
   })
+
+  // On Android 13 and lower Health Connect is an app of its own. Where it is
+  // not installed, asking for permission can only fail, so the status is taken
+  // first and the real reason given.
+  it('reports the plugin status instead of asking when Health Connect is missing', async () => {
+    const request = vi.fn()
+    const plugin = { status: vi.fn(async () => ({ status: 'missing' })), requestReadPermissions: request }
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: false, why: 'missing' })
+    expect(request).not.toHaveBeenCalled()
+  })
+
+  it('reports update when the provider needs updating', async () => {
+    const plugin = { status: vi.fn(async () => ({ status: 'update' })), requestReadPermissions: vi.fn() }
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: false, why: 'update' })
+  })
+
+  // A status call that throws is not the end of it: the request is still the
+  // real test.
+  it('asks anyway when the status cannot be read', async () => {
+    const plugin = {
+      status: vi.fn(async () => { throw new Error('no such method') }),
+      requestReadPermissions: vi.fn(async () => ({ granted: true })),
+    }
+    await expect(ensureReadPermissions(plugin)).resolves.toEqual({ ok: true })
+    expect(plugin.requestReadPermissions).toHaveBeenCalled()
+  })
+
+  // The one that wedged the whole screen: a native call that never answers left
+  // busy set for good, so the pull button went dead too.
+  it('gives up on a permission sheet that never answers', async () => {
+    const plugin = {
+      status: vi.fn(async () => ({ status: 'available' })),
+      requestReadPermissions: vi.fn(() => new Promise(() => {})),
+    }
+    await expect(ensureReadPermissions(plugin, { timeoutMs: 20 })).resolves.toEqual({ ok: false, why: 'timeout' })
+  })
 })
 
 describe('toHealthExportCsv', () => {
