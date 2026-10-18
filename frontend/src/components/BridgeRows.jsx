@@ -39,14 +39,40 @@ export function BridgeDataSection() {
     catch { /* offline: keep the last status shown */ }
   }
 
+  // PERSONAL-READ: tell the server we were tapped, and what came of it. A tap
+  // that reaches this function but never comes back leaves a first note with no
+  // second one, which is the difference between "the button is dead" and "the
+  // call after it hangs" - the one distinction that could not be made from the
+  // phone screen. Fire and forget: this is a note, never a step that can fail.
+  //
+  // One file per note, rather than one file appended to, because the inbox
+  // write replaces what is there: a single file would only ever hold the last
+  // thing that happened. The extension must be one the inbox accepts
+  // (.csv/.json/.xml), and a name that is not Activity/Sleep/Vitals so the
+  // import chain ignores it.
+  const beacon = (stage, extra = {}) => {
+    try {
+      api('/api/bridge/inbox', {
+        method: 'POST',
+        body: JSON.stringify({
+          filename: `phone-bridge-${stage}-${Date.now()}.json`,
+          content: JSON.stringify({ at: new Date().toISOString(), stage, ...extra }),
+        }),
+      }).catch(() => {})
+    } catch { /* offline is fine; the note is a convenience, not the job */ }
+  }
+
   const pull = async () => {
-    if (busy) return
+    if (busy) { beacon('pull-ignored-busy'); return }
     setBusy(true)
+    beacon('pull-tapped')
     try {
       const r = await api('/api/bridge/pull', { method: 'POST', body: JSON.stringify({}) })
+      beacon('pull-queued', { coalesced: !!r.coalesced })
       toast(r.coalesced ? t('A pull is already queued.') : t('Pull queued.'))
       await refresh()
     } catch (e) {
+      beacon('pull-error', { message: e?.message || String(e) })
       toast(e?.data?.error || t('Could not queue the pull.'))
     }
     setBusy(false)
@@ -83,19 +109,22 @@ export function BridgeDataSection() {
   // as a toast. A toast that flashes off-screen is indistinguishable from a
   // button that did nothing, which is exactly what was being reported.
   const readPhone = async () => {
-    if (busy) return
+    if (busy) { beacon('ignored-busy'); return }
     setBusy(true)
     setProgress(null)
     setReadNote(null)
+    beacon('read-tapped')
     try {
       const hc = await readPlugin()
+      beacon('read-plugin', { havePlugin: !!hc })
       if (!hc) {
-        const note = t('This build cannot read Health Connect.')
-        setReadNote(note)
-        toast(note)
+        const msg = t('This build cannot read Health Connect.')
+        setReadNote(msg)
+        toast(msg)
         return
       }
       const permit = await ensureReadPermissions(hc)
+      beacon('read-permission', permit)
       if (!permit.ok) {
         // Each reason gets its own words. "Not installed" and "you said no" look
         // identical from the outside if both are reported as a permission.
@@ -108,9 +137,9 @@ export function BridgeDataSection() {
           denied: t('Health Connect access was not granted.'),
           timeout: t('Health Connect did not answer. Close the app and try again.'),
         }
-        const note = WHY[permit.why] || t('Health Connect request failed: {0}', permit.message || t('unknown error'))
-        setReadNote(note)
-        toast(note)
+        const msg = WHY[permit.why] || t('Health Connect request failed: {0}', permit.message || t('unknown error'))
+        setReadNote(msg)
+        toast(msg)
         return
       }
       const read = await readPhoneHealth({
@@ -126,17 +155,19 @@ export function BridgeDataSection() {
       for (const [filename, content] of files) {
         await api('/api/bridge/inbox', { method: 'POST', body: JSON.stringify({ filename, content }) })
       }
-      const days = Object.keys(read.days || {}).length
-      const note = files.length
-        ? t('Read {0} session(s) over {1} days. On the server — pull to import.', read.sessions.length, days)
+      const dayCount = Object.keys(read.days || {}).length
+      const msg = files.length
+        ? t('Read {0} session(s) over {1} days. On the server — pull to import.', read.sessions.length, dayCount)
         : t('Nothing new on this phone.')
-      setReadNote(note)
-      toast(note)
+      setReadNote(msg)
+      beacon('read-done', { sessions: read.sessions.length, files: files.length })
+      toast(msg)
       await refresh()
     } catch (e) {
-      const note = t('Could not read phone health data: {0}', e?.message || t('unknown error'))
-      setReadNote(note)
-      toast(note)
+      const msg = t('Could not read phone health data: {0}', e?.message || t('unknown error'))
+      setReadNote(msg)
+      beacon('read-error', { message: e?.message || String(e) })
+      toast(msg)
     } finally {
       setBusy(false)
       setProgress(null)
