@@ -15,10 +15,15 @@ import androidx.health.connect.client.records.DistanceRecord;
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord;
 import androidx.health.connect.client.records.HeartRateRecord;
 import androidx.health.connect.client.request.ReadRecordsRequest;
+// PERSONAL-READ: AggregateRequest sits in ...client.request, not ...client.aggregate
+// (that package holds only the metric/result types). Verified against the
+// pinned client's own jar; importing it from .aggregate does not compile.
+import androidx.health.connect.client.request.AggregateRequest;
 import androidx.health.connect.client.response.ReadRecordsResponse;
-import androidx.health.connect.client.aggregate.AggregateRequest;
 import androidx.health.connect.client.aggregate.AggregateMetric;
 import androidx.health.connect.client.aggregate.AggregationResult;
+import androidx.health.connect.client.units.Length;
+import androidx.health.connect.client.units.Energy;
 import androidx.health.connect.client.time.TimeRangeFilter;
 import java.time.Duration;
 import java.time.Instant;
@@ -319,16 +324,21 @@ public class HealthConnectPlugin extends Plugin {
         metrics.add(HeartRateRecord.BPM_MIN);
         metrics.add(HeartRateRecord.BPM_AVG);
         metrics.add(HeartRateRecord.BPM_MAX);
-        AggregateRequest<?> req = new AggregateRequest<>(metrics, range, Collections.emptySet());
+        AggregateRequest req = new AggregateRequest(metrics, range, Collections.emptySet());
         AggregationResult res = (AggregationResult) BuildersKt.runBlocking(
                 EmptyCoroutineContext.INSTANCE, (scope, cont) -> client().aggregate(req, cont));
         JSObject out = new JSObject();
-        try { out.put("steps", res.getLong(StepsRecord.COUNT_TOTAL)); } catch (Exception ignored) {}
-        try { out.put("distanceM", res.getDouble(DistanceRecord.DISTANCE_TOTAL)); } catch (Exception ignored) {}
-        try { out.put("caloriesKcal", res.getDouble(TotalCaloriesBurnedRecord.ENERGY_TOTAL)); } catch (Exception ignored) {}
-        try { out.put("hrMin", res.getLong(HeartRateRecord.BPM_MIN)); } catch (Exception ignored) {}
-        try { out.put("hrAvg", res.getLong(HeartRateRecord.BPM_AVG)); } catch (Exception ignored) {}
-        try { out.put("hrMax", res.getLong(HeartRateRecord.BPM_MAX)); } catch (Exception ignored) {}
+        // The client returns one typed value per metric through the generic get(),
+        // not the getLong()/getDouble() pair older releases had. Distance and energy
+        // come back as Length/Energy objects, so they are converted here rather than
+        // read as plain numbers. A metric the store cannot answer throws or comes
+        // back null, and either way that one number is simply left out.
+        try { Long v = res.get(StepsRecord.COUNT_TOTAL); if (v != null) out.put("steps", v); } catch (Exception ignored) {}
+        try { Length v = res.get(DistanceRecord.DISTANCE_TOTAL); if (v != null) out.put("distanceM", v.getMeters()); } catch (Exception ignored) {}
+        try { Energy v = res.get(TotalCaloriesBurnedRecord.ENERGY_TOTAL); if (v != null) out.put("caloriesKcal", v.getKilocalories()); } catch (Exception ignored) {}
+        try { Long v = res.get(HeartRateRecord.BPM_MIN); if (v != null) out.put("hrMin", v); } catch (Exception ignored) {}
+        try { Long v = res.get(HeartRateRecord.BPM_AVG); if (v != null) out.put("hrAvg", v); } catch (Exception ignored) {}
+        try { Long v = res.get(HeartRateRecord.BPM_MAX); if (v != null) out.put("hrMax", v); } catch (Exception ignored) {}
         return out;
     }
 
@@ -347,9 +357,9 @@ public class HealthConnectPlugin extends Plugin {
                 for (SleepSessionRecord.Stage s : r.getStages()) {
                     long mins = Duration.between(s.getStartTime(), s.getEndTime()).toMinutes();
                     switch (s.getStage()) {
-                        case SleepSessionRecord.STAGE_TYPE_LIGHT_SLEEP: light += mins; break;
-                        case SleepSessionRecord.STAGE_TYPE_DEEP_SLEEP: deep += mins; break;
-                        case SleepSessionRecord.STAGE_TYPE_REM_SLEEP: rem += mins; break;
+                        case SleepSessionRecord.STAGE_TYPE_LIGHT: light += mins; break;
+                        case SleepSessionRecord.STAGE_TYPE_DEEP: deep += mins; break;
+                        case SleepSessionRecord.STAGE_TYPE_REM: rem += mins; break;
                         case SleepSessionRecord.STAGE_TYPE_AWAKE:
                         case SleepSessionRecord.STAGE_TYPE_OUT_OF_BED: awake += mins; break;
                         default: break;
