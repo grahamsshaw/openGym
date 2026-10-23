@@ -1,3 +1,4 @@
+// PERSONAL-READ-BUILD-MARKER
 // PERSONAL-READ: read phone health data through the native plugin and shape
 // it as Health Data Export CSV text, so the pull chain consumes it unchanged
 // (same headers, same converter, same `(phone)` naming downstream).
@@ -7,11 +8,17 @@
 // side is HealthConnectPlugin.read. Day attribution: a session belongs to
 // the day it starts; a night's sleep to the day its first minute falls in;
 // a record appearing in two adjacent day windows is kept once (by start).
-// health-sync.js's plugin() caches its result in pluginP — if that promise
-// ever hung during initialization (HealthConnectCard calls healthStatus() on
-// mount), the stuck promise poisons every later call. The read path registers
-// the plugin directly instead, so a stuck cache can never lock it out.
+// The read path uses lib/health-sync.js's plugin accessor — the exact same one
+// the Write to Health Connect row proves settles. That accessor caches its
+// result in pluginP, so once it has resolved once (which it has on this phone,
+// since write works), every later call returns instantly with no native call at
+// all. The timeout only guards the very first call, before anything is cached.
+//
+// Bounded on purpose: a lookup that never settles is worse than any failure,
+// because it takes the caller's busy flag down with it and every other button
+// stops answering.
 import { MOBILE } from './mobile.js'
+import { healthPlugin } from './health-sync.js'
 
 export const READ_DAYS_DEFAULT = 30
 
@@ -52,11 +59,10 @@ export async function readPlugin({ timeoutMs = PLUGIN_TIMEOUT_MS } = {}) {
   let timer
   let timedOut = false
   try {
+    // healthPlugin() is plugin() from lib/health-sync.js — cached, proven to
+    // settle. The timeout only guards the first call before anything is cached.
     const hc = await Promise.race([
-      (async () => {
-        const { registerPlugin } = await import('@capacitor/core')
-        return registerPlugin('HealthConnect')
-      })(),
+      healthPlugin().then(p => (p?.HC ? p.HC : null)).catch(() => null),
       new Promise(resolve => {
         timer = setTimeout(() => { timedOut = true; resolve(null) }, timeoutMs)
       }),
@@ -247,3 +253,8 @@ export function toHealthExportCsv(read) {
   }
   return { activity: activity.join('\n') + '\n', sleep: sleep.join('\n') + '\n', vitals: vitals.join('\n') + '\n' }
 }
+
+
+
+
+

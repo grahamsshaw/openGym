@@ -61,21 +61,17 @@ describe('readPlugin', () => {
     vi.doMock('./mobile.js', () => ({ MOBILE: true }))
     return import('./health-read.js')
   }
-  const clear = () => { vi.doUnmock('@capacitor/core'); vi.doUnmock('./mobile.js'); vi.resetModules() }
+  const clear = () => { vi.doUnmock('./health-sync.js'); vi.doUnmock('./mobile.js'); vi.resetModules() }
 
   it('gives up rather than hanging when the lookup never settles', async () => {
-    vi.doMock('@capacitor/core', () => ({
-      registerPlugin: () => new Promise(() => {}),
-    }))
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: () => new Promise(() => {}) }))
     const mod = await asPhone()
     await expect(mod.readPlugin({ timeoutMs: 20 })).resolves.toEqual({ hc: null, why: 'timeout' })
     clear()
   })
 
   it('names the reason when the plugin is simply not there', async () => {
-    vi.doMock('@capacitor/core', () => ({
-      registerPlugin: async () => null,
-    }))
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => null }))
     const mod = await asPhone()
     await expect(mod.readPlugin()).resolves.toEqual({ hc: null, why: 'unavailable' })
     clear()
@@ -83,9 +79,7 @@ describe('readPlugin', () => {
 
   it('hands back the proxy it was given', async () => {
     const proxy = { read: () => {} }
-    vi.doMock('@capacitor/core', () => ({
-      registerPlugin: async () => proxy,
-    }))
+    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => ({ HC: proxy }) }))
     const mod = await asPhone()
     await expect(mod.readPlugin()).resolves.toEqual({ hc: proxy })
     clear()
