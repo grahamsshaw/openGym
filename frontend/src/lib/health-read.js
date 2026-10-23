@@ -7,17 +7,16 @@
 // side is HealthConnectPlugin.read. Day attribution: a session belongs to
 // the day it starts; a night's sleep to the day its first minute falls in;
 // a record appearing in two adjacent day windows is kept once (by start).
-// isAndroid is no longer imported here. This lookup used to build its own
-// Capacitor import chain and timed out on every single tap; health-sync.js has
-// an accessor that the Write to Health Connect row proves settles, so the read
-// path now uses that one instead of a second copy of the same logic.
+// health-sync.js's plugin() caches its result in pluginP — if that promise
+// ever hung during initialization (HealthConnectCard calls healthStatus() on
+// mount), the stuck promise poisons every later call. The read path registers
+// the plugin directly instead, so a stuck cache can never lock it out.
 import { MOBILE } from './mobile.js'
-import { healthPlugin } from './health-sync.js'
 
 export const READ_DAYS_DEFAULT = 30
 
 /** How long any single native round-trip may take before it is written off. */
-export const PLUGIN_TIMEOUT_MS = 15000
+export const PLUGIN_TIMEOUT_MS = 8000
 
 /** Display names for the typeName strings HealthConnectPlugin.read returns. */
 export const TYPE_LABELS = {
@@ -37,9 +36,9 @@ export const OWN_PACKAGES = ['ch.duartesantos.opengym']
 /**
  * The Health Connect plugin proxy, or why there isn't one.
  *
- * Reached through lib/health-sync.js's accessor, the one the Write to Health
- * Connect row proves settles. This file used to build its own Capacitor import
- * chain and timed out on every tap.
+ * Registers the plugin directly rather than going through lib/health-sync.js's
+ * cached accessor, because that cache can hold a promise that hung during
+ * initialization and never settles again.
  *
  * Bounded on purpose: a lookup that never settles is worse than any failure,
  * because it takes the caller's busy flag down with it and every other button
@@ -54,7 +53,10 @@ export async function readPlugin({ timeoutMs = PLUGIN_TIMEOUT_MS } = {}) {
   let timedOut = false
   try {
     const hc = await Promise.race([
-      healthPlugin().then(p => (p?.HC ? p.HC : null)).catch(() => null),
+      (async () => {
+        const { registerPlugin } = await import('@capacitor/core')
+        return registerPlugin('HealthConnect')
+      })(),
       new Promise(resolve => {
         timer = setTimeout(() => { timedOut = true; resolve(null) }, timeoutMs)
       }),

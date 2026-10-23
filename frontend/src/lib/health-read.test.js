@@ -61,17 +61,21 @@ describe('readPlugin', () => {
     vi.doMock('./mobile.js', () => ({ MOBILE: true }))
     return import('./health-read.js')
   }
-  const clear = () => { vi.doUnmock('./health-sync.js'); vi.doUnmock('./mobile.js'); vi.resetModules() }
+  const clear = () => { vi.doUnmock('@capacitor/core'); vi.doUnmock('./mobile.js'); vi.resetModules() }
 
   it('gives up rather than hanging when the lookup never settles', async () => {
-    vi.doMock('./health-sync.js', () => ({ healthPlugin: () => new Promise(() => {}) }))
+    vi.doMock('@capacitor/core', () => ({
+      registerPlugin: () => new Promise(() => {}),
+    }))
     const mod = await asPhone()
     await expect(mod.readPlugin({ timeoutMs: 20 })).resolves.toEqual({ hc: null, why: 'timeout' })
     clear()
   })
 
   it('names the reason when the plugin is simply not there', async () => {
-    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => null }))
+    vi.doMock('@capacitor/core', () => ({
+      registerPlugin: async () => null,
+    }))
     const mod = await asPhone()
     await expect(mod.readPlugin()).resolves.toEqual({ hc: null, why: 'unavailable' })
     clear()
@@ -79,7 +83,9 @@ describe('readPlugin', () => {
 
   it('hands back the proxy it was given', async () => {
     const proxy = { read: () => {} }
-    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => ({ HC: proxy }) }))
+    vi.doMock('@capacitor/core', () => ({
+      registerPlugin: async () => proxy,
+    }))
     const mod = await asPhone()
     await expect(mod.readPlugin()).resolves.toEqual({ hc: proxy })
     clear()
@@ -88,7 +94,6 @@ describe('readPlugin', () => {
   it('reports no plugin on a web build without waiting', async () => {
     vi.resetModules()
     vi.doMock('./mobile.js', () => ({ MOBILE: false }))
-    vi.doMock('./health-sync.js', () => ({ healthPlugin: async () => ({ HC: {} }) }))
     const mod = await import('./health-read.js')
     await expect(mod.readPlugin()).resolves.toEqual({ hc: null, why: 'web' })
     clear()
