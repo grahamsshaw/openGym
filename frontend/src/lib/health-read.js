@@ -23,7 +23,7 @@ import { healthPlugin } from './health-sync.js'
 export const READ_DAYS_DEFAULT = 30
 
 /** How long any single native round-trip may take before it is written off. */
-export const PLUGIN_TIMEOUT_MS = 8000
+export const PLUGIN_TIMEOUT_MS = 30000
 
 /** Display names for the typeName strings HealthConnectPlugin.read returns. */
 export const TYPE_LABELS = {
