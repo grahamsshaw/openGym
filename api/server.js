@@ -2322,7 +2322,11 @@ const routes = {
     const out = personalBridge.inboxFile({ filename: body.filename, content: body.content });
     if (out.error) return json(res, 400, { error: out.error });
     audit(req, 'bridge.inbox.upload', { ok: true, user, msg: out.file });
-    json(res, 200, { ok: true, ...out });
+    // Queue an automatic import so uploaded health CSVs are imported without
+    // a separate "Pull gym + Wii data" tap. The bridge runner picks up the job
+    # on its next poll (within 60 s) and runs stage_inbox -> convert -> merge -> push.
+    const importQueued = personalBridge.requestPull({ userId: user.id, sources: ['health_connect'] });
+    json(res, 200, { ok: true, ...out, importQueued });
   },
 
   'GET /api/push/public-key': async (req, res) => json(res, 200, { key: vapid.publicKey }),
