@@ -2324,7 +2324,7 @@ const routes = {
     audit(req, 'bridge.inbox.upload', { ok: true, user, msg: out.file });
     // Queue an automatic import so uploaded health CSVs are imported without
     // a separate "Pull gym + Wii data" tap. The bridge runner picks up the job
-    # on its next poll (within 60 s) and runs stage_inbox -> convert -> merge -> push.
+    // on its next poll (within 60 s) and runs stage_inbox -> convert -> merge -> push.
     const importQueued = personalBridge.requestPull({ userId: user.id, sources: ['health_connect'] });
     json(res, 200, { ok: true, ...out, importQueued });
   },
